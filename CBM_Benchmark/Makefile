@@ -11,4 +11,4 @@ Benchmark: $(OBJ)
 
 
 Benchmark: Main.c
-		gcc -o Benchmark Main.c
+    gcc -o Benchmark Main.c
