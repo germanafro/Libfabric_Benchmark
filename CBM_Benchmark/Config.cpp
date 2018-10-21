@@ -15,7 +15,6 @@ Config::Config()
 	hints = fi_allocinfo();
 	if (!hints) {
 		perror("fi_allocinfo");
-		return -1;
 	}
 	hints->addr_format = FI_SOCKADDR_IN;
 	hints->ep_attr->type = FI_EP_MSG;
