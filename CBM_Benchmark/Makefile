@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall
-DEPS = Config.h Domain.h Endpoint.h Node.h InputNode.h ProcessingNode.h resource.h
-OBJ = Main.o Config.o Domain.o Endpoint.o InputNode.o Node.o ProcessingNode.o
+DEPS = Config.h Node.h InputNode.h ProcessingNode.h
+OBJ = Main.o Config.o InputNode.o Node.o ProcessingNode.o
 
 %.o: %.c $(DEPS)
 	$(CC) $(CFLAGS) -c -o $@ $<
