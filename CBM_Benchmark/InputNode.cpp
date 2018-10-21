@@ -55,7 +55,7 @@ void * InputNode::cq_thread(void * arg)
 		}
 
 		if (comp.flags & FI_READ) {
-			struct ctx *ctx = comp.op_context;
+			struct ctx *ctx = (struct ctx*)comp.op_context;
 			pthread_mutex_lock(&ctx->lock);
 			ctx->ready = 1;
 			pthread_cond_signal(&ctx->cond);
@@ -64,28 +64,6 @@ void * InputNode::cq_thread(void * arg)
 	}
 
 	return NULL;
-}
-
-void * InputNode::client_thread(void *arg)
-{
-	struct ctx *ctx = arg;
-	int i;
-	ssize_t ret;
-	for (i = 0; i < ctx->count; i++) {
-
-		ret = fi_read(ep, buff, ctx->size, fi_mr_desc(mr),
-			0, keys.addr, keys.rkey, ctx);
-		if (ret) {
-			perror("fi_read");
-			break;
-		}
-
-		pthread_mutex_lock(&ctx->lock);
-		while (!ctx->ready)
-			pthread_cond_wait(&ctx->cond, &ctx->lock);
-		ctx->ready = 0;
-		pthread_mutex_unlock(&ctx->lock);
-	}
 }
 
 int InputNode::initClient()

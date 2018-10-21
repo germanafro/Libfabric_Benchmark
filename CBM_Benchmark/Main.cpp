@@ -24,6 +24,27 @@ int server(void)
 
 	return ret;
 }
+void * client_thread(void *arg)
+{
+	struct ctx *ctx = (struct ctx*)arg;
+	int i;
+	ssize_t ret;
+	for (i = 0; i < ctx->count; i++) {
+
+		ret = fi_read(inode->ep, inode->buff, ctx->size, fi_mr_desc(inode->mr),
+			0, inode->keys.addr, inode->keys.rkey, ctx);
+		if (ret) {
+			perror("fi_read");
+			break;
+		}
+
+		pthread_mutex_lock(&ctx->lock);
+		while (!ctx->ready)
+			pthread_cond_wait(&ctx->cond, &ctx->lock);
+		ctx->ready = 0;
+		pthread_mutex_unlock(&ctx->lock);
+	}
+}
 
 int client(char *addr, int threads, int size, int count) 
 {
@@ -40,7 +61,7 @@ int client(char *addr, int threads, int size, int count)
 	int i;
 	for (i = 0; i < threads; i++) {
 		ret = pthread_create(&ctx[i].thread, NULL,
-			inode->client_thread, &ctx[i]);
+			client_thread, &ctx[i]);
 		if (ret) {
 			perror("pthread_create");
 			return ret;

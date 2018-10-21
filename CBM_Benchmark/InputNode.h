@@ -10,7 +10,6 @@ public:
 	~InputNode();
 
 	void * cq_thread(void *arg);
-	void * client_thread(void *arg);
 	int initClient();
 
 
