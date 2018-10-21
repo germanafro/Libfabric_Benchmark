@@ -8,7 +8,3 @@ OBJ = Main.o Config.o Domain.o Endpoint.o InputNode.o Node.o ProcessingNode.o
 
 Benchmark: $(OBJ)
 	gcc $(CFLAGS) -o $@ $^
-
-
-Benchmark: Main.c
-		gcc -o Benchmark Main.c
