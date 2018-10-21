@@ -1,0 +1,265 @@
+﻿E:\workspace\c++\libfabric\Libfabric.Build.Default.props(3,3): warning MSB4011: "E:\workspace\c++\libfabric\Libfabric.Build.Default.props" cannot be imported again. It was already imported at "E:\workspace\c++\libfabric\libfabric.vcxproj (34,3)". This is most likely a build authoring error. This subsequent import will be ignored. 
+  netdir_cntr.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+  netdir_ep_msg.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+  netdir_ep_rma.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+  netdir_ep_srx.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+  netdir_mr.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+  netdir_unexp.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+  netdir_addr.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+  netdir_ov.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+  netdir_cq.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+  netdir_domain.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+  netdir_ep.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+  netdir_eq.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+  netdir_fabric.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+  netdir_fs.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+  netdir_init.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+  netdir_ndinit.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+  netdir_pep.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+  sock_atomic.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+prov\sockets\src\sock_atomic.c(151): warning C4267: '=': conversion from 'size_t' to 'uint8_t', possible loss of data
+prov\sockets\src\sock_atomic.c(154): warning C4267: '=': conversion from 'size_t' to 'uint8_t', possible loss of data
+prov\sockets\src\sock_atomic.c(155): warning C4267: '=': conversion from 'size_t' to 'uint8_t', possible loss of data
+prov\sockets\src\sock_atomic.c(158): warning C4244: '=': conversion from 'uint64_t' to 'uint8_t', possible loss of data
+prov\sockets\src\sock_atomic.c(159): warning C4244: '=': conversion from 'uint64_t' to 'uint8_t', possible loss of data
+prov\sockets\src\sock_atomic.c(161): warning C4267: '=': conversion from 'size_t' to 'uint8_t', possible loss of data
+  sock_av.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+prov\sockets\src\sock_av.c(90): warning C4244: '=': conversion from 'fi_addr_t' to 'int', possible loss of data
+prov\sockets\src\sock_av.c(91): warning C4244: '=': conversion from 'fi_addr_t' to 'int', possible loss of data
+prov\sockets\src\sock_av.c(133): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
+prov\sockets\src\sock_av.c(178): warning C4244: 'return': conversion from 'uint64_t' to 'int', possible loss of data
+prov\sockets\src\sock_av.c(239): warning C4244: '=': conversion from 'uint64_t' to 'int', possible loss of data
+prov\sockets\src\sock_av.c(242): warning C4244: '=': conversion from 'uint64_t' to 'int', possible loss of data
+prov\sockets\src\sock_av.c(269): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
+prov\sockets\src\sock_av.c(280): warning C4244: '=': conversion from 'fi_addr_t' to 'int', possible loss of data
+prov\sockets\src\sock_av.c(351): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+prov\sockets\src\sock_av.c(406): warning C4244: '=': conversion from 'fi_addr_t' to 'uint16_t', possible loss of data
+  sock_cntr.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+prov\sockets\src\sock_cntr.c(148): warning C4244: '=': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_cntr.c(152): warning C4244: '=': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_cntr.c(156): warning C4244: '=': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_cntr.c(160): warning C4244: '=': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_cntr.c(165): warning C4244: '=': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_cntr.c(170): warning C4244: '=': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_cntr.c(183): warning C4244: '=': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_cntr.c(240): warning C4244: 'function': conversion from 'uint64_t' to 'int32_t', possible loss of data
+prov\sockets\src\sock_cntr.c(241): warning C4244: 'function': conversion from 'uint64_t' to 'int32_t', possible loss of data
+prov\sockets\src\sock_cntr.c(259): warning C4244: 'function': conversion from 'uint64_t' to 'int32_t', possible loss of data
+prov\sockets\src\sock_cntr.c(260): warning C4244: 'function': conversion from 'uint64_t' to 'int32_t', possible loss of data
+prov\sockets\src\sock_cntr.c(277): warning C4244: 'function': conversion from 'uint64_t' to 'int32_t', possible loss of data
+prov\sockets\src\sock_cntr.c(294): warning C4244: 'function': conversion from 'uint64_t' to 'int32_t', possible loss of data
+prov\sockets\src\sock_cntr.c(341): warning C4244: 'function': conversion from 'uint64_t' to 'int', possible loss of data
+  sock_comm.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+prov\sockets\src\sock_comm.c(86): warning C4389: '==': signed/unsigned mismatch
+prov\sockets\src\sock_comm.c(167): warning C4244: '=': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_comm.c(218): warning C4244: '=': conversion from 'ssize_t' to 'int', possible loss of data
+  sock_conn.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+prov\sockets\src\sock_conn.c(276): warning C4133: 'function': incompatible types - from 'int *' to 'const char *'
+prov\sockets\src\sock_conn.c(288): warning C4133: 'function': incompatible types - from 'int *' to 'const char *'
+prov\sockets\src\sock_conn.c(345): warning C4244: '=': conversion from 'SOCKET' to 'int', possible loss of data
+prov\sockets\src\sock_conn.c(421): warning C4244: '=': conversion from 'SOCKET' to 'int', possible loss of data
+prov\sockets\src\sock_conn.c(431): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
+prov\sockets\src\sock_conn.c(515): warning C4244: '=': conversion from 'SOCKET' to 'int', possible loss of data
+prov\sockets\src\sock_conn.c(533): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
+prov\sockets\src\sock_conn.c(593): warning C4244: 'function': conversion from 'fi_addr_t' to 'int', possible loss of data
+prov\sockets\src\sock_conn.c(595): warning C4244: 'function': conversion from 'fi_addr_t' to 'int', possible loss of data
+  sock_cq.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+prov\sockets\src\sock_cq.c(220): warning C4244: 'return': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_cq.c(239): warning C4244: 'return': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_cq.c(251): warning C4244: 'return': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_cq.c(264): warning C4244: 'return': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_cq.c(362): warning C4244: '=': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_cq.c(387): warning C4244: '=': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_cq.c(405): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+  sock_ctx.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+  sock_dom.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+  sock_ep.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+prov\sockets\src\sock_ep.c(1159): warning C4244: '=': conversion from 'int' to 'uint16_t', possible loss of data
+prov\sockets\src\sock_ep.c(1204): warning C4244: '=': conversion from 'int' to 'uint16_t', possible loss of data
+prov\sockets\src\sock_ep.c(1354): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+prov\sockets\src\sock_ep.c(1815): warning C4244: '=': conversion from 'fi_addr_t' to 'uint16_t', possible loss of data
+prov\sockets\src\sock_ep.c(1856): warning C4244: 'function': conversion from 'uint64_t' to 'int', possible loss of data
+prov\sockets\src\sock_ep.c(1873): warning C4244: 'return': conversion from 'ssize_t' to 'int', possible loss of data
+  sock_ep_dgram.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+  sock_ep_msg.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+prov\sockets\src\sock_ep_msg.c(292): warning C4244: '=': conversion from 'SOCKET' to 'int', possible loss of data
+prov\sockets\src\sock_ep_msg.c(299): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
+prov\sockets\src\sock_ep_msg.c(379): warning C4244: '=': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_ep_msg.c(396): warning C4244: '=': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_ep_msg.c(599): warning C4244: '=': conversion from 'int' to 'uint16_t', possible loss of data
+prov\sockets\src\sock_ep_msg.c(673): warning C4267: 'function': conversion from 'size_t' to 'u_short', possible loss of data
+prov\sockets\src\sock_ep_msg.c(688): warning C4244: '=': conversion from 'SOCKET' to 'int', possible loss of data
+prov\sockets\src\sock_ep_msg.c(699): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
+prov\sockets\src\sock_ep_msg.c(712): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
+prov\sockets\src\sock_ep_msg.c(770): warning C4267: 'function': conversion from 'size_t' to 'u_short', possible loss of data
+prov\sockets\src\sock_ep_msg.c(778): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
+prov\sockets\src\sock_ep_msg.c(914): warning C4244: '=': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_ep_msg.c(972): warning C4267: 'function': conversion from 'size_t' to 'u_short', possible loss of data
+prov\sockets\src\sock_ep_msg.c(981): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
+prov\sockets\src\sock_ep_msg.c(1146): warning C4244: '=': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_ep_msg.c(1155): warning C4244: '=': conversion from 'SOCKET' to 'int', possible loss of data
+  sock_ep_rdm.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+  sock_eq.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+prov\sockets\src\sock_eq.c(104): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+prov\sockets\src\sock_eq.c(151): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+prov\sockets\src\sock_eq.c(263): warning C4244: '=': conversion from 'ssize_t' to 'int', possible loss of data
+  sock_fabric.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+prov\sockets\src\sock_fabric.c(405): warning C4244: '=': conversion from 'SOCKET' to 'int', possible loss of data
+prov\sockets\src\sock_fabric.c(409): warning C4267: '=': conversion from 'size_t' to 'socklen_t', possible loss of data
+  sock_mr.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+prov\sockets\src\sock_mr.c(176): warning C4244: 'return': conversion from 'ssize_t' to 'int', possible loss of data
+  sock_msg.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+prov\sockets\src\sock_msg.c(98): warning C4244: '=': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_msg.c(119): warning C4267: '=': conversion from 'size_t' to 'uint8_t', possible loss of data
+prov\sockets\src\sock_msg.c(231): warning C4244: '=': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_msg.c(247): warning C4244: '=': conversion from 'uint64_t' to 'uint8_t', possible loss of data
+prov\sockets\src\sock_msg.c(249): warning C4267: '=': conversion from 'size_t' to 'uint8_t', possible loss of data
+prov\sockets\src\sock_msg.c(440): warning C4244: '=': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_msg.c(462): warning C4267: '=': conversion from 'size_t' to 'uint8_t', possible loss of data
+prov\sockets\src\sock_msg.c(577): warning C4244: '=': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_msg.c(590): warning C4244: '=': conversion from 'uint64_t' to 'uint8_t', possible loss of data
+prov\sockets\src\sock_msg.c(595): warning C4267: '=': conversion from 'size_t' to 'uint8_t', possible loss of data
+  sock_poll.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+  sock_progress.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+prov\sockets\src\sock_progress.c(100): warning C4244: '=': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_progress.c(121): warning C4244: '=': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_progress.c(495): warning C4267: '+=': conversion from 'size_t' to 'int', possible loss of data
+prov\sockets\src\sock_progress.c(500): warning C4244: '=': conversion from 'uint64_t' to 'int', possible loss of data
+prov\sockets\src\sock_progress.c(562): warning C4244: '=': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_progress.c(653): warning C4267: '+=': conversion from 'size_t' to 'int', possible loss of data
+prov\sockets\src\sock_progress.c(713): warning C4267: '+=': conversion from 'size_t' to 'int', possible loss of data
+prov\sockets\src\sock_progress.c(841): warning C4244: 'function': conversion from 'uint64_t' to 'int', possible loss of data
+prov\sockets\src\sock_progress.c(1165): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
+prov\sockets\src\sock_progress.c(1278): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
+prov\sockets\src\sock_progress.c(1238): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+prov\sockets\src\sock_progress.c(1381): warning C4244: 'return': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_progress.c(1389): warning C4389: '!=': signed/unsigned mismatch
+prov\sockets\src\sock_progress.c(1421): warning C4244: 'function': conversion from 'uint64_t' to 'int', possible loss of data
+prov\sockets\src\sock_progress.c(1444): warning C4244: 'return': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_progress.c(1480): warning C4244: 'function': conversion from 'uint64_t' to 'int', possible loss of data
+prov\sockets\src\sock_progress.c(1661): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+prov\sockets\src\sock_progress.c(2113): warning C4244: '=': conversion from '__int64' to 'uint16_t', possible loss of data
+prov\sockets\src\sock_progress.c(2190): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+prov\sockets\src\sock_progress.c(2246): warning C4244: '=': conversion from 'uint16_t' to 'uint8_t', possible loss of data
+prov\sockets\src\sock_progress.c(2365): warning C4244: '=': conversion from 'uint64_t' to 'int', possible loss of data
+  sock_rma.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+prov\sockets\src\sock_rma.c(113): warning C4244: '=': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_rma.c(130): warning C4267: '=': conversion from 'size_t' to 'uint8_t', possible loss of data
+prov\sockets\src\sock_rma.c(131): warning C4267: '=': conversion from 'size_t' to 'uint8_t', possible loss of data
+prov\sockets\src\sock_rma.c(273): warning C4244: '=': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_rma.c(280): warning C4267: '=': conversion from 'size_t' to 'uint8_t', possible loss of data
+prov\sockets\src\sock_rma.c(290): warning C4244: '=': conversion from 'uint64_t' to 'uint8_t', possible loss of data
+prov\sockets\src\sock_rma.c(293): warning C4267: '=': conversion from 'size_t' to 'uint8_t', possible loss of data
+  sock_rx_entry.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+  Compiling...
+  sock_trigger.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+prov\sockets\src\sock_trigger.c(288): warning C4244: 'return': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_trigger.c(293): warning C4244: 'return': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_trigger.c(298): warning C4244: 'return': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_trigger.c(303): warning C4244: 'return': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_trigger.c(308): warning C4244: 'return': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_trigger.c(313): warning C4244: 'return': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_trigger.c(319): warning C4244: 'return': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_trigger.c(329): warning C4244: 'return': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_trigger.c(341): warning C4244: 'return': conversion from 'ssize_t' to 'int', possible loss of data
+prov\sockets\src\sock_trigger.c(344): warning C4244: 'return': conversion from 'ssize_t' to 'int', possible loss of data
+  sock_wait.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+  udpx_init.c
+E:\workspace\c++\libfabric\include\windows/osd.h(750): warning C4090: 'function': different 'const' qualifiers
+E:\workspace\c++\libfabric\include\windows/osd.h(941): warning C4057: 'function': 'int *' differs in indirection to slightly different base types from 'unsigned int *'
+     Creating library E:\workspace\c++\libfabric\x64\Release-v141\libfabric.lib and object E:\workspace\c++\libfabric\x64\Release-v141\libfabric.exp
+  Generating code
+e:\workspace\c++\libfabric\prov\util\src\util_cq.c(76): warning C4706: assignment within conditional expression
+e:\workspace\c++\libfabric\prov\util\src\util_cq.c(49): warning C4706: assignment within conditional expression
+e:\workspace\c++\libfabric\prov\util\src\util_av.c(1231): warning C4706: assignment within conditional expression
+e:\workspace\c++\libfabric\prov\util\src\util_attr.c(219): warning C4706: assignment within conditional expression
+e:\workspace\c++\libfabric\prov\netdir\src\netdir_cq.c(733): warning C4701: potentially uninitialized local variable 'hr' used
+e:\workspace\c++\libfabric\prov\netdir\src\netdir_ep_rma.c(467): warning C4701: potentially uninitialized local variable 'hr' used
+e:\workspace\c++\libfabric\prov\netdir\src\netdir_ep_rma.c(266): warning C4701: potentially uninitialized local variable 'hr' used
+e:\workspace\c++\libfabric\prov\util\src\util_attr.c(159): warning C4706: assignment within conditional expression
+e:\workspace\c++\libfabric\prov\sockets\src\sock_fabric.c(271): warning C4701: potentially uninitialized local variable 'caps' used
+e:\workspace\c++\libfabric\prov\util\src\util_attr.c(956): warning C4706: assignment within conditional expression
+e:\workspace\c++\libfabric\prov\util\src\util_attr.c(342): warning C4706: assignment within conditional expression
+e:\workspace\c++\libfabric\prov\rxd\src\rxd_fabric.c(90): warning C4706: assignment within conditional expression
+  All 3329 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  libfabric.vcxproj -> E:\workspace\c++\libfabric\x64\Release-v141\libfabric.dll
+  libfabric.vcxproj -> E:\workspace\c++\libfabric\x64\Release-v141\libfabric.pdb (Full PDB)
