@@ -1,8 +1,8 @@
 #pragma once
 //fabric includes
-#include <rdma\fabric.h>
-#include <rdma\fi_domain.h>
-#include <rdma\fi_errno.h>
+#include <rdma/fabric.h>
+#include <rdma/fi_domain.h>
+#include <rdma/fi_errno.h>
 
 #include <iostream>
 /*class descriptor representing the local network domain providing access to underlying fabric architecture*/
