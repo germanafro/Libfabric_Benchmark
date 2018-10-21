@@ -1,5 +1,5 @@
 #pragma once
-//fabric includes
+//libfabric includes
 #include <rdma/fabric.h>
 #include <rdma/fabric.h>
 #include <rdma/fi_endpoint.h>
@@ -8,6 +8,10 @@
 #include <rdma/fi_rma.h>
 //Linux
 #include <pthread.h>
+//etc
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 struct keys {
 	uint64_t rkey;
