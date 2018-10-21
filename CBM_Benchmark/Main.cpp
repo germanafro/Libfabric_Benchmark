@@ -24,6 +24,40 @@ int server(void)
 
 	return ret;
 }
+
+void * cq_thread(void * arg)
+{
+	struct fi_cq_msg_entry comp;
+	ssize_t ret;
+	struct fi_cq_err_entry err;
+	const char *err_str;
+	struct fi_eq_entry eq_entry;
+	uint32_t event;
+
+	while (inode->run) {
+		ret = fi_cq_sread(inode->cq, &comp, 1, NULL, 1000);
+		if (!inode->run)
+			break;
+		if (ret == -FI_EAGAIN)
+			continue;
+
+		if (ret != 1) {
+			perror("fi_cq_sread");
+			break;
+		}
+
+		if (comp.flags & FI_READ) {
+			struct ctx *ctx = (struct ctx*)comp.op_context;
+			pthread_mutex_lock(&ctx->lock);
+			ctx->ready = 1;
+			pthread_cond_signal(&ctx->cond);
+			pthread_mutex_unlock(&ctx->lock);
+		}
+	}
+
+	return NULL;
+};
+
 void * client_thread(void *arg)
 {
 	struct ctx *ctx = (struct ctx*)arg;
@@ -54,7 +88,7 @@ int client(char *addr, int threads, int size, int count)
 	if (ret)
 		return ret;
 
-	ret = inode->initClient();
+	ret = inode->initClient(cq_thread);
 	if (ret)
 		return ret;
 

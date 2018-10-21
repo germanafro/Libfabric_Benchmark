@@ -33,40 +33,8 @@ InputNode::~InputNode()
 	// note: Endpoints should be cleaned up within the respective class
 }
 
-void * InputNode::cq_thread(void * arg)
-{
-	struct fi_cq_msg_entry comp;
-	ssize_t ret;
-	struct fi_cq_err_entry err;
-	const char *err_str;
-	struct fi_eq_entry eq_entry;
-	uint32_t event;
 
-	while (run) {
-		ret = fi_cq_sread(cq, &comp, 1, NULL, 1000);
-		if (!run)
-			break;
-		if (ret == -FI_EAGAIN)
-			continue;
-
-		if (ret != 1) {
-			perror("fi_cq_sread");
-			break;
-		}
-
-		if (comp.flags & FI_READ) {
-			struct ctx *ctx = (struct ctx*)comp.op_context;
-			pthread_mutex_lock(&ctx->lock);
-			ctx->ready = 1;
-			pthread_cond_signal(&ctx->cond);
-			pthread_mutex_unlock(&ctx->lock);
-		}
-	}
-
-	return NULL;
-}
-
-int InputNode::initClient()
+int InputNode::initClient(void * cq_thread)
 {
 	int ret;
 

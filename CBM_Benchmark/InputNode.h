@@ -9,8 +9,7 @@ public:
 	InputNode(const char *addr, uint64_t flags, Config * config, void *buff, struct keys keys);
 	~InputNode();
 
-	void * cq_thread(void *arg);
-	int initClient();
+	int initClient(void * cq_thread);
 
 
 	struct keys keys;
