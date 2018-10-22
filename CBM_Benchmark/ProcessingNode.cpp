@@ -97,7 +97,7 @@ int ProcessingNode::initServer()
 		rret = fi_send(ep, buff, sizeof(keys), fi_mr_desc(mr), 0, NULL);
 		if (rret) {
 			perror("fi_send");
-		//	return (int)rret;
+			return (int)rret;
 		}
 
 		struct fi_cq_msg_entry comp;
