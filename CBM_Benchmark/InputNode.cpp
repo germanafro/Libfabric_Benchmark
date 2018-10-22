@@ -71,6 +71,7 @@ int InputNode::initClient(void * cq_thread(void* arg))
 
 
 	ret = fi_connect(ep, fi->dest_addr, NULL, 0);
+	fprintf(stderr, "connecting: %s\n", fi_strerror(ret));
 	if (ret) {
 		perror("fi_connect");
 		return ret;

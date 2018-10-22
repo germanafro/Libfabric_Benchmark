@@ -42,7 +42,7 @@ int ProcessingNode::initServer()
 
 	while (1) {
 
-		printf("listening\n");
+		printf("listening at %d \n", addr);
 
 		rret = fi_eq_sread(eq, &event, &entry, sizeof(entry), -1, 0);
 		if (rret != sizeof(entry)) {

@@ -2,8 +2,6 @@
 #include "ProcessingNode.h"
 #include "Config.h"
 
-#include <pthread.h>
-
 using namespace std;
 
 void *buff;
@@ -79,6 +77,7 @@ void * client_thread(void *arg)
 		ctx->ready = 0;
 		pthread_mutex_unlock(&ctx->lock);
 	}
+	return 0;
 }
 
 int client(char *addr, int threads, int size, int count) 
@@ -138,14 +137,19 @@ main(int argc, char *argv[])
 	}
 
 	if (argc != 5) {
+		fprintf(stderr, "arguments given: %d\n", argc);
 		fprintf(stderr, "usage: %s addr threads size count rkey addr\n", argv[0]);
 		return -1;
 	}
 
 	char *addr = argv[1];
+	fprintf(stderr, "addr: %s\n", addr);
 	int threads = atoi(argv[2]);
+	fprintf(stderr, "threads: %d\n", threads);
 	int size = atoi(argv[3]);
+	fprintf(stderr, "size: %d\n", size);
 	int count = atoi(argv[4]);
+	fprintf(stderr, "count: %d\n", count);
 
 	ctx = reinterpret_cast<struct ctx *>(calloc(threads, sizeof(*ctx)));
 	if (!ctx) {
