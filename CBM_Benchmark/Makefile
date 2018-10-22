@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -Wall -v
+CFLAGS = -Wall
 DEPS = Config.h Node.h InputNode.h ProcessingNode.h
 OBJ = Main.o Config.o InputNode.o Node.o ProcessingNode.o
 LIBS = -lfabric
