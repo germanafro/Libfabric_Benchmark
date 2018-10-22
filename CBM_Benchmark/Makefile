@@ -7,4 +7,4 @@ OBJ = Main.o Config.o InputNode.o Node.o ProcessingNode.o
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 Benchmark: $(OBJ)
-	gcc $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^
