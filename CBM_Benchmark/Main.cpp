@@ -1,7 +1,8 @@
-#include "Domain.h"
 #include "InputNode.h"
 #include "ProcessingNode.h"
 #include "Config.h"
+
+#include <pthread.h>
 
 using namespace std;
 
