@@ -39,11 +39,10 @@ int ProcessingNode::initServer()
 	struct fi_eq_cm_entry entry;
 	uint32_t event;
 	ssize_t rret;
-	char * caddr = strdup(addr);
 
 	while (1) {
 
-		printf("listening at %s \n", host2ip::resolve(caddr));
+		printf("listening at %s \n", addr);
 
 		rret = fi_eq_sread(eq, &event, &entry, sizeof(entry), -1, 0);
 		if (rret != sizeof(entry)) {
