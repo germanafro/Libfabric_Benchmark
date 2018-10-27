@@ -9,6 +9,7 @@
 class host2ip {
 public:
     static char * resolve(char* hostname);
+    static const char * resolve(const char* hostname);
     static void initialise();
     static void uninitialise ();
 

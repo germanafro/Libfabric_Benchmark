@@ -42,7 +42,7 @@ int ProcessingNode::initServer()
 
 	while (1) {
 
-		printf("listening at %s \n", host2ip::resolve(strdup(addr)));
+		printf("listening at %s \n", host2ip::resolve(addr));
 
 		rret = fi_eq_sread(eq, &event, &entry, sizeof(entry), -1, 0);
 		if (rret != sizeof(entry)) {
