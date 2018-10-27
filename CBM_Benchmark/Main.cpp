@@ -1,6 +1,7 @@
 #include "InputNode.h"
 #include "ProcessingNode.h"
 #include "Config.h"
+#include "host2ip.h"
 
 using namespace std;
 
@@ -12,9 +13,9 @@ Config * config;
 ProcessingNode * pnode;
 InputNode * inode;
 
-int server(void)
+int server()
 {
-	pnode = new ProcessingNode(NULL, FI_SOURCE, config, buff, keys);
+	pnode = new ProcessingNode(nullptr, FI_SOURCE, config, buff, keys);
 	int ret = pnode->init();
 	if (ret)
 		return ret;
@@ -34,7 +35,7 @@ void * cq_thread(void * arg)
 	uint32_t event;
 
 	while (inode->run) {
-		ret = fi_cq_sread(inode->cq, &comp, 1, NULL, 1000);
+		ret = fi_cq_sread(inode->cq, &comp, 1, nullptr, 1000);
 		if (!inode->run)
 			break;
 		if (ret == -FI_EAGAIN)
@@ -54,7 +55,7 @@ void * cq_thread(void * arg)
 		}
 	}
 
-	return NULL;
+	return nullptr;
 };
 
 void * client_thread(void *arg)
@@ -94,7 +95,7 @@ int client(char *addr, int threads, int size, int count)
 
 	int i;
 	for (i = 0; i < threads; i++) {
-		ret = pthread_create(&ctx[i].thread, NULL,
+		ret = pthread_create(&ctx[i].thread, nullptr,
 			client_thread, &ctx[i]);
 		if (ret) {
 			perror("pthread_create");
@@ -103,11 +104,11 @@ int client(char *addr, int threads, int size, int count)
 	}
 
 	for (i = 0; i < threads; i++) {
-		pthread_join(ctx[i].thread, NULL);
+		pthread_join(ctx[i].thread, nullptr);
 	}
 
 	inode->run = 0;
-	pthread_join(inode->thread, NULL);
+	pthread_join(inode->thread, nullptr);
 
 	//maybe? maybe not? currently this is done in destructor of node.
 	/*fi_shutdown(inode->ep, 0);
@@ -143,6 +144,10 @@ main(int argc, char *argv[])
 	}
 
 	char *addr = argv[1];
+	addr = host2ip::resolve(addr);
+	if (addr == nullptr){
+	    return -1;
+	}
 	fprintf(stderr, "addr: %s\n", addr);
 	int threads = atoi(argv[2]);
 	fprintf(stderr, "threads: %d\n", threads);
@@ -159,8 +164,8 @@ main(int argc, char *argv[])
 
 	int i;
 	for (i = 0; i < threads; i++) {
-		pthread_mutex_init(&ctx[i].lock, NULL);
-		pthread_cond_init(&ctx[i].cond, NULL);
+		pthread_mutex_init(&ctx[i].lock, nullptr);
+		pthread_cond_init(&ctx[i].cond, nullptr);
 		ctx[i].count = count;
 		ctx[i].size = size;
 	}
