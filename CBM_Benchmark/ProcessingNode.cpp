@@ -39,10 +39,12 @@ int ProcessingNode::initServer()
 	struct fi_eq_cm_entry entry;
 	uint32_t event;
 	ssize_t rret;
+	char * localaddr;
 
 	while (1) {
 
-		printf("listening at %s \n",  (char *)fi->src_addr);
+		rret = fi_getname(pep->fid, fi->src_addr, fi->src_addrlen);
+		printf("listening at %s");
 
 		rret = fi_eq_sread(eq, &event, &entry, sizeof(entry), -1, 0);
 		if (rret != sizeof(entry)) {

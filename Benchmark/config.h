@@ -1,4 +1,7 @@
-#pragma once
+//
+// Created by andreas on 27.10.18.
+//
+
 //libfabric includes
 #include <rdma/fabric.h>
 #include <rdma/fi_endpoint.h>
@@ -12,32 +15,26 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifndef BENCHMARK_CONFIG_H
+#define BENCHMARK_CONFIG_H
+
 struct keys {
-	uint64_t rkey;
-	uint64_t addr;
-};
-struct ctx {
-	pthread_t thread;
-	pthread_mutex_t lock;
-	pthread_cond_t cond;
-	int ready;
-	int count;
-	int size;
+    uint64_t rkey;
+    uint64_t addr;
 };
 
-class Config
-{
-public:
-	Config();
-	~Config();
-	size_t buff_size;
-	struct fi_opt * option;
-	struct fi_info * hints;
-	//console art
-	static char * console_spacer();
-private:
+class config {
+    public:
+        config();
+        ~config();
+        size_t buff_size;
+        struct fi_opt * option;
+        struct fi_info * hints;
+        //console art
+        static char * console_spacer();
+    private:
 
-};
+    };
 
 #define FIVER FI_VERSION(1, 6)
 
@@ -52,7 +49,4 @@ private:
 #define MAX_CTRL_MSG_SIZE 2147483; // FIXME
 
 
-
-
-
-
+#endif //BENCHMARK_CONFIG_H
