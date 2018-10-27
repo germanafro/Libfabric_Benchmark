@@ -38,7 +38,7 @@ char * host2ip::resolve(char *hostname)
     host2ip::initialise();
 
     he = gethostbyname (hostname); // alternatively theres also getaddrinfo()
-    if (he == nullptr)
+    if (he == NULL)
     {
         switch (h_errno)
         {
@@ -58,7 +58,7 @@ char * host2ip::resolve(char *hostname)
                 fputs ("unknown error", stderr);
                 break;
         }
-        return nullptr;
+        return NULL;
     }
     host2ip::uninitialise();
 

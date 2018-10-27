@@ -15,7 +15,7 @@ InputNode * inode;
 
 int server()
 {
-	pnode = new ProcessingNode(nullptr, FI_SOURCE, config, buff, keys);
+	pnode = new ProcessingNode(NULL, FI_SOURCE, config, buff, keys);
 	int ret = pnode->init();
 	if (ret)
 		return ret;
@@ -35,7 +35,7 @@ void * cq_thread(void * arg)
 	uint32_t event;
 
 	while (inode->run) {
-		ret = fi_cq_sread(inode->cq, &comp, 1, nullptr, 1000);
+		ret = fi_cq_sread(inode->cq, &comp, 1, NULL, 1000);
 		if (!inode->run)
 			break;
 		if (ret == -FI_EAGAIN)
@@ -55,7 +55,7 @@ void * cq_thread(void * arg)
 		}
 	}
 
-	return nullptr;
+	return NULL;
 };
 
 void * client_thread(void *arg)
@@ -95,7 +95,7 @@ int client(char *addr, int threads, int size, int count)
 
 	int i;
 	for (i = 0; i < threads; i++) {
-		ret = pthread_create(&ctx[i].thread, nullptr,
+		ret = pthread_create(&ctx[i].thread, NULL,
 			client_thread, &ctx[i]);
 		if (ret) {
 			perror("pthread_create");
@@ -104,11 +104,11 @@ int client(char *addr, int threads, int size, int count)
 	}
 
 	for (i = 0; i < threads; i++) {
-		pthread_join(ctx[i].thread, nullptr);
+		pthread_join(ctx[i].thread, NULL);
 	}
 
 	inode->run = 0;
-	pthread_join(inode->thread, nullptr);
+	pthread_join(inode->thread, NULL);
 
 	//maybe? maybe not? currently this is done in destructor of node.
 	/*fi_shutdown(inode->ep, 0);
@@ -145,7 +145,7 @@ main(int argc, char *argv[])
 
 	char *addr = argv[1];
 	addr = host2ip::resolve(addr);
-	if (addr == nullptr){
+	if (addr == NULL){
 	    return -1;
 	}
 	fprintf(stderr, "addr: %s\n", addr);
@@ -164,8 +164,8 @@ main(int argc, char *argv[])
 
 	int i;
 	for (i = 0; i < threads; i++) {
-		pthread_mutex_init(&ctx[i].lock, nullptr);
-		pthread_cond_init(&ctx[i].cond, nullptr);
+		pthread_mutex_init(&ctx[i].lock, NULL);
+		pthread_cond_init(&ctx[i].cond, NULL);
 		ctx[i].count = count;
 		ctx[i].size = size;
 	}
