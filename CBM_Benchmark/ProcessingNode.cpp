@@ -1,5 +1,5 @@
 #include "ProcessingNode.h"
-
+#include "host2ip.h"
 
 
 ProcessingNode::ProcessingNode(const char *addr, uint64_t flags, Config * config, void *buff, struct keys keys) : Node(addr, flags, config, buff)
@@ -42,7 +42,7 @@ int ProcessingNode::initServer()
 
 	while (1) {
 
-		printf("listening at %s \n", addr);
+		printf("listening at %s \n", host2ip::resolve(strdup(addr)));
 
 		rret = fi_eq_sread(eq, &event, &entry, sizeof(entry), -1, 0);
 		if (rret != sizeof(entry)) {
