@@ -6,20 +6,38 @@
 #include "host2ip.h"
 
 benchmark::benchmark(int argc, char *argv[]) {
-    /*this->argc = argc;
+    this->argc = argc;
     for (int i = 0; i < argc ; i++){
         this->argv[i] = argv[i];
-    }*/
+    }
     conf = new config();
-    int ret = init();
-    printf("init: %s \n", fi_strerror(ret));
-
+	int ret;
     switch(argc){
-        case 1:
+		case 1:
+			addr = host2ip::resolve("localhost");
+			port = "6666";
+			tag = FI_SOURCE;
+			printf("server: %s %s \n", addr, port);
+			ret = init();
+			printf("init: %s \n", fi_strerror(ret));
+			server();
+			break;
+        case 2:
+			addr = host2ip::resolve("localhost");
+			port = argv[1];
+			tag = FI_SOURCE;
+			printf("server: %s %s \n", addr, port);
+			ret = init();
+			printf("init: %s \n", fi_strerror(ret));
             server();
             break;
-        case 2:
-            addr_in = argv[1];
+        case 3:
+            addr = host2ip::resolve(argv[1]);
+			port = argv[2];
+			tag = NULL;
+			printf("client: %s %s \n", addr, port);
+			ret = init();
+			printf("init: %s \n", fi_strerror(ret));
             client();
             break;
         default:
@@ -204,7 +222,6 @@ int benchmark::server() {
 int benchmark::client() {
 
     int ret;
-    char * addr = host2ip::resolve(addr_in);
     void * vaddr;
     printf("addr: %s \n", addr);
     size_t addrlen = 0;

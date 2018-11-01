@@ -36,7 +36,9 @@ private:
     struct fi_eq_cm_entry entry;
     uint32_t event;
 
-    char* addr_in;
+    char* addr;
+	char* port;
+	char* flag;
 
 
     //int argc;
