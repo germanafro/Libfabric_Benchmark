@@ -65,7 +65,7 @@ int benchmark::init() {
         perror("fi_getinfo");
         return ret;
     }
-
+    printf("fi_getinfo: %d %d %s %s \n", fi->src_addrlen, fi->dest_addrlen, fi->fabric_attr->name, fi->fabric_attr->prov_name);
     ret = fi_fabric(fi->fabric_attr, &fabric, NULL);
     if(ret != 0){
         perror("fi_fabric");
