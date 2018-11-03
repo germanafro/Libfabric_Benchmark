@@ -268,7 +268,6 @@ int benchmark::client() {
     }
 
     ret = fi_connect(ep, fi->dest_addr, NULL, 0);
-    fprintf(stderr, "connecting: %s\n", fi_strerror(ret));
     if (ret) {
         perror("fi_connect");
         return ret;
@@ -278,6 +277,7 @@ int benchmark::client() {
     uint32_t event;
 
     rret = fi_eq_sread(eq, &event, &entry, sizeof(entry), -1, 0);
+    fprintf(stderr, "fi_eq_sread: %s\n", fi_strerror(rret));
     if (rret != sizeof(entry)) {
         perror("fi_eq_sread");
         return (int)rret;
