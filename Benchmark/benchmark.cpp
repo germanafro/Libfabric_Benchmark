@@ -14,7 +14,7 @@ benchmark::benchmark(int argc, char *argv[]) {
 	int ret;
     switch(argc){
 		case 1:
-			addr = "0";
+			addr = NULL;
 			port = "6666";
 			flag = FI_SOURCE;
 			printf("server: %s %s \n", addr, port);
