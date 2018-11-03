@@ -23,7 +23,7 @@ benchmark::benchmark(int argc, char *argv[]) {
 			server();
 			break;
         case 2:
-			addr = host2ip::resolve("localhost");
+			addr = NULL;
 			port = argv[1];
             flag = FI_SOURCE;
 			printf("server: %s %s \n", addr, port);
