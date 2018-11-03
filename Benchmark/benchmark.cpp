@@ -62,13 +62,13 @@ int benchmark::init() {
 
     ret = fi_getinfo(FIVER, addr, port, flag, conf->hints, &fi);
     if(ret != 0){
-        fprintf(stderr, "fi_getinfo");
+        perror("fi_getinfo");
         return ret;
     }
 
     ret = fi_fabric(fi->fabric_attr, &fabric, NULL);
     if(ret != 0){
-        fprintf(stderr, "fi_fabric");
+        perror("fi_fabric");
         return ret;
     }
 
@@ -77,13 +77,13 @@ int benchmark::init() {
     eq_attr.wait_obj = FI_WAIT_UNSPEC;
     ret = fi_eq_open(fabric, &eq_attr, &eq, NULL);
     if(ret != 0){
-        fprintf(stderr, "fi_eq_open");
+        perror("fi_eq_open");
         return ret;
     }
 
     ret = fi_domain(fabric, fi, &domain, NULL);
     if(ret != 0){
-        fprintf(stderr, "fi_domain");
+        perror("fi_domain");
         return ret;
     }
 
@@ -92,7 +92,7 @@ int benchmark::init() {
     cq_attr.size = 100;
     ret = fi_cq_open(domain, &cq_attr, &cq, NULL);
     if(ret != 0){
-        fprintf(stderr, "fi_cq_open");
+        perror("fi_cq_open");
         return ret;
     }
 
