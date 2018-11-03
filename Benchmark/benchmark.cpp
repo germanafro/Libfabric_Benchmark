@@ -15,7 +15,7 @@ benchmark::benchmark(int argc, char *argv[]) {
     switch(argc){
 		case 1:
 			addr = NULL;
-			port = "6666";
+			port = "1234";
 			flag = FI_SOURCE;
 			printf("server: %s %s \n", addr, port);
 			ret = init();
@@ -47,7 +47,7 @@ benchmark::benchmark(int argc, char *argv[]) {
 }
 
 benchmark::~benchmark() {
-    //fi_shutdown(&ep->fid, 0);
+    fi_shutdown(ep, 0);
     fi_close(&ep->fid);
     fi_close(&mr->fid);
     fi_close(&tx_cq->fid);
@@ -56,6 +56,8 @@ benchmark::~benchmark() {
     fi_close(&domain->fid);
     fi_close(&fabric->fid);
     fi_freeinfo(fi);
+
+    free(buff);
 }
 
 int benchmark::init() {
@@ -66,7 +68,7 @@ int benchmark::init() {
         perror("fi_getinfo");
         return ret;
     }
-    printf("fi_getinfo: %s %s %s %s \n", fi->src_addr, fi->dest_addr, fi->fabric_attr->name, fi->fabric_attr->prov_name);
+    printf("fi_getinfo: %s %s \n", fi->fabric_attr->prov_name, fi->fabric_attr->name);
     ret = fi_fabric(fi->fabric_attr, &fabric, NULL);
     if(ret != 0){
         perror("fi_fabric");
@@ -242,6 +244,7 @@ int benchmark::client() {
 
     fi_av_straddr(av, buff, laddr, &local_addrlen);
     fi_av_straddr(av, &remote_addr, raddr, &remote_addrlen);
+    //fi_av_straddr(av, fi->dest_addr, raddr, &remote_addrlen);
     printf("client: local: %s (%d), remote: %s (%d) \n", laddr, local_addrlen, raddr, remote_addrlen);
 
     rret = fi_send(ep, buff, buff_addrlen, NULL, remote_addr, NULL); // send client address to server address
