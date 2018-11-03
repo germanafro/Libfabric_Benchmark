@@ -60,7 +60,7 @@ benchmark::~benchmark() {
 int benchmark::init() {
     int ret;
 
-    ret = fi_getinfo(FIVER, NULL, NULL, NULL, conf->hints, &fi);
+    ret = fi_getinfo(FIVER, addr, port, tag, conf->hints, &fi);
     if(ret != 0){
         fprintf(stderr, "fi_getinfo");
         return ret;
@@ -226,14 +226,6 @@ int benchmark::client() {
     printf("addr: %s \n", addr);
     size_t addrlen = 0;
 
-
-
-
-    ret = fi_getinfo(FIVER, addr, NULL, NULL, conf->hints, &fi);
-    if(ret != 0){
-        fprintf(stderr, "fi_getinfo");
-        return ret;
-    }
     //FIXME memory access violation?
     /*puts("test1");
     fi_getname(&ep->fid, vaddr, &addrlen);
@@ -295,6 +287,7 @@ int benchmark::client() {
         fprintf(stderr, "invalid event %u\n", event);
         return -1;
     }
+    printf("connected\n");
 
     struct fi_cq_msg_entry comp;
     rret = fi_cq_sread(cq, &comp, 1, NULL, -1);
@@ -328,8 +321,6 @@ int benchmark::client() {
             run = 0;
         }
     }
-
-    printf("connected\n");
 
     return 0;
 
