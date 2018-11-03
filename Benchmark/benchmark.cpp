@@ -50,7 +50,8 @@ benchmark::~benchmark() {
     //fi_shutdown(&ep->fid, 0);
     fi_close(&ep->fid);
     fi_close(&mr->fid);
-    fi_close(&cq->fid);
+    fi_close(&tx_cq->fid);
+    fi_close(&rx_cq->fid);
     fi_close(&eq->fid);
     fi_close(&domain->fid);
     fi_close(&fabric->fid);
@@ -65,7 +66,7 @@ int benchmark::init() {
         perror("fi_getinfo");
         return ret;
     }
-    printf("fi_getinfo: %d %d %s %s \n", fi->src_addrlen, fi->dest_addrlen, fi->fabric_attr->name, fi->fabric_attr->prov_name);
+    printf("fi_getinfo: %s %s %s %s \n", fi->src_addr, fi->dest_addr, fi->fabric_attr->name, fi->fabric_attr->prov_name);
     ret = fi_fabric(fi->fabric_attr, &fabric, NULL);
     if(ret != 0){
         perror("fi_fabric");
@@ -88,12 +89,28 @@ int benchmark::init() {
     }
 
     memset(&cq_attr, 0, sizeof(cq_attr));
-    cq_attr.format = FI_CQ_FORMAT_UNSPEC;
-    cq_attr.size = 100;
-    ret = fi_cq_open(domain, &cq_attr, &cq, NULL);
+    cq_attr.wait_obj = FI_WAIT_NONE;
+    cq_attr.format = FI_CQ_FORMAT_CONTEXT;
+    cq_attr.size = fi->tx_attr->size;
+    ret = fi_cq_open(domain, &cq_attr, &tx_cq, NULL);
     if(ret != 0){
         perror("fi_cq_open");
         return ret;
+    }
+    cq_attr.size = fi->rx_attr->size;
+    ret = fi_cq_open(domain, &cq_attr, &rx_cq, NULL);
+    if(ret != 0){
+        perror("fi_cq_open");
+        return ret;
+    }
+
+    memset(&av_attr, 0, sizeof(av_attr));
+    av_attr.type = fi->domain_attr->av_type;
+    av_attr.count = 1; // TODO what does this do exactly?
+    ret = fi_av_open(domain, &av_attr, &av, NULL);
+    if (ret) {
+        perror("fi_av_open");
+        return -1;
     }
 
     buff = malloc(conf->buff_size);
@@ -110,10 +127,124 @@ int benchmark::init() {
     desc = fi_mr_desc(mr);
     rkey = fi_mr_key(mr);
 
+    ret = fi_endpoint(domain, fi, &ep, NULL);
+    if(ret){
+        perror("fi_endpoint");
+        return ret;
+    }
+
+    ret = fi_ep_bind(ep, &av->fid, 0);
+    if(ret){
+        perror("fi_ep_bind(av)");
+        return ret;
+    }
+
+    ret = fi_ep_bind(ep, &tx_cq->fid, FI_TRANSMIT);
+    if(ret){
+        perror("fi_ep_bind(tx_cq)");
+        return ret;
+    }
+
+    ret = fi_ep_bind(ep, &rx_cq->fid, FI_RECV);
+    if(ret){
+        perror("fi_ep_bind(rx_cq)");
+        return ret;
+    }
+
+    ret = fi_ep_bind(ep, &eq->fid, 0);
+    if (ret) {
+        perror("fi_ep_bind(eq)");
+        return ret;
+    }
+
     return ret;
 }
 
+int benchmark::comp(struct fid_cq *cq){
+    struct fi_cq_entry entry;
+    ssize_t ret;
+
+    while(1){
+        ret = fi_cq_read(cq, &entry, 1);
+        if(ret > 0)
+            return 0;
+        if(ret != -FI_EAGAIN){
+            struct fi_cq_err_entry err_entry;
+            fi_cq_readerr(cq, &err_entry, 0);
+            printf("%s %s \n", fi_strerror(err_entry.err), fi_cq_strerror(cq, err_entry.prov_errno, err_entry.err_data, NULL, 0));
+            return (int)ret;
+        }
+    }
+
+}
+
 int benchmark::server() {
+    int ret;
+    ssize_t rret;
+    size_t addrlen = 16; //FIXME this is addrlen size for sockets provider!!
+
+
+    //wait for connection
+    printf("listening: \n");
+    fi_recv(ep, buff, sizeof(buff), 0, 0, NULL); // waiting to receive client address
+    comp(rx_cq);
+    fi_av_insert(av, buff, 1, &remote_addr, 0, NULL); // store client address
+
+    fi_recv(ep, buff, sizeof(buff), 0, 0, NULL); //queue up next listen
+    fi_send(ep, buff, 1, NULL, remote_addr, NULL); //and tell client you're ready
+    comp(tx_cq);
+
+    //at this point we should eb connected
+    printf("connected: \n");
+
+    while(1){
+        comp(rx_cq);
+        fi_recv(ep, buff, conf->buff_size, 0, 0, NULL);
+        if(strcmp((char*)buff, "quit")){
+            return 0;
+        }
+        fi_send(ep, buff, conf->buff_size, NULL, remote_addr, NULL);
+        comp(tx_cq);
+    }
+
+}
+
+int benchmark::client() {
+    int ret;
+    ssize_t rret;
+    size_t addrlen = 16; //FIXME this is addrlen size for sockets provider!!
+
+    fi_av_insert(av, fi->dest_addr, 1, &remote_addr, 0, NULL); // insert server address
+    fi_getname(&ep->fid, buff, &addrlen); // get client address
+    fi_send(ep, buff, addrlen, NULL, remote_addr, NULL); // send client address to server address
+    comp(rx_cq);
+    fi_recv(ep, buff, sizeof(buff), 0, 0, NULL); // FIXME at this point we should probably only allow recv from remote_addr
+    comp(tx_cq);
+
+    //at this point we should be connected
+    printf("connected: \n");
+
+    //now lets do stuff
+    for (int i=0; i< 10; i++){
+        fi_send(ep, buff, conf->buff_size, NULL, remote_addr, NULL);
+        comp(tx_cq);
+        comp(rx_cq);
+        fi_recv(ep, buff, conf->buff_size, 0, 0, NULL);
+        printf("%d \n", i);
+    }
+
+    // quit
+    char * quit = "quit";
+    memcpy(buff, quit, sizeof(quit));
+    fi_send(ep, buff, sizeof(quit), NULL, remote_addr, NULL);
+    comp(tx_cq);
+    comp(rx_cq);
+    fi_recv(ep, buff, conf->buff_size, 0, 0, NULL);
+    memcpy(quit, buff, sizeof(quit));
+    printf("%s \n", quit);
+}
+
+/**int benchmark::server() {
     int ret;
     ssize_t rret;
 
@@ -227,14 +358,14 @@ int benchmark::client() {
     size_t addrlen = 0;
 
     //FIXME memory access violation?
-    /*puts("test1");
-    fi_getname(&ep->fid, vaddr, &addrlen);
-    puts("test2");
-    vaddr = malloc(addrlen);
-    puts("test3");
-    ret = fi_getname(&ep->fid, vaddr, &addrlen);
-    puts("test4");
-    printf("vaddr: %s", vaddr); */
+    //puts("test1");
+    //fi_getname(&ep->fid, vaddr, &addrlen);
+    //puts("test2");
+    //vaddr = malloc(addrlen);
+    //puts("test3");
+    //ret = fi_getname(&ep->fid, vaddr, &addrlen);
+    //puts("test4");
+    //printf("vaddr: %s", vaddr);
 
     ret = fi_endpoint(domain, fi, &ep, NULL);
     if (ret) {
@@ -324,4 +455,4 @@ int benchmark::client() {
 
     return 0;
 
-}
+}*/
