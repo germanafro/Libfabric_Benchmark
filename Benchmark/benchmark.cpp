@@ -157,6 +157,12 @@ int benchmark::init() {
         return ret;
     }
 
+    ret = fi_enable(ep);
+    if (ret) {
+        perror("fi_enable");
+        return ret;
+    }
+
     return ret;
 }
 
@@ -210,15 +216,45 @@ int benchmark::server() {
 }
 
 int benchmark::client() {
+    int k = 0; //TODO debug counter - remove me
     int ret;
     ssize_t rret;
-    size_t addrlen = 16; //FIXME this is addrlen size for sockets provider!!
+    size_t buff_addrlen = 100; //FIXME
+    size_t local_addrlen = 100; //FIXME
+    size_t remote_addrlen = 100; //FIXME
+    char * laddr = new char(local_addrlen);
+    char * raddr = new char(remote_addrlen);
 
-    fi_av_insert(av, fi->dest_addr, 1, &remote_addr, 0, NULL); // insert server address
-    fi_getname(&ep->fid, buff, &addrlen); // get client address
-    fi_send(ep, buff, addrlen, NULL, remote_addr, NULL); // send client address to server address
+    //laddr = (char*)malloc(sizeof(char*) * 30);
+    //raddr = (char*)malloc(sizeof(char*) * 30);
+
+    ret = fi_av_insert(av, &fi->dest_addr, 1, &remote_addr, 0, NULL); // insert server address
+    if (ret) {
+        printf("fi_av_insert: %s\n", strerror(ret));
+        return -1;
+    }
+
+    ret = fi_getname(&ep->fid, buff, &buff_addrlen); // get client address
+    if (ret) {
+        printf("fi_getname: %s\n", strerror(ret));
+       // return -1;
+    }
+
+    fi_av_straddr(av, buff, laddr, &local_addrlen);
+    fi_av_straddr(av, &remote_addr, raddr, &remote_addrlen);
+    printf("client: local: %s (%d), remote: %s (%d) \n", laddr, local_addrlen, raddr, remote_addrlen);
+
+    rret = fi_send(ep, buff, buff_addrlen, NULL, remote_addr, NULL); // send client address to server address
+    if (rret) {
+        perror("fi_send");
+        return (int)ret;
+    }
     comp(rx_cq);
-    fi_recv(ep, buff, sizeof(buff), 0, 0, NULL); // FIXME at this point we should probably only allow recv from remote_addr
+    rret = fi_recv(ep, buff, sizeof(buff), 0, 0, NULL); // FIXME at this point we should probably only allow recv from remote_addr
+    if (rret) {
+        perror("fi_recv");
+        return (int)ret;
+    }
     comp(tx_cq);
 
     //at this point we should be connected
