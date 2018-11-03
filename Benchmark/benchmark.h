@@ -33,16 +33,18 @@ private:
 
     struct fid_ep * ep;
     struct fid_pep * pep;
-    struct fi_eq_cm_entry entry;
     uint32_t event;
+
+    int argc;
 
     char* addr;
 	char* port;
-	char* flag;
+	unsigned long long flag;
+
+    struct fi_eq_cm_entry entry;
+    char * argv[];
 
 
-    //int argc;
-    //char * argv[];
 };
 
 

@@ -6,17 +6,17 @@
 #include "host2ip.h"
 
 benchmark::benchmark(int argc, char *argv[]) {
-    this->argc = argc;
+   /* this->argc = argc;
     for (int i = 0; i < argc ; i++){
         this->argv[i] = argv[i];
-    }
+    }*/
     conf = new config();
 	int ret;
     switch(argc){
 		case 1:
 			addr = host2ip::resolve("localhost");
 			port = "6666";
-			tag = FI_SOURCE;
+			flag = FI_SOURCE;
 			printf("server: %s %s \n", addr, port);
 			ret = init();
 			printf("init: %s \n", fi_strerror(ret));
@@ -25,7 +25,7 @@ benchmark::benchmark(int argc, char *argv[]) {
         case 2:
 			addr = host2ip::resolve("localhost");
 			port = argv[1];
-			tag = FI_SOURCE;
+            flag = FI_SOURCE;
 			printf("server: %s %s \n", addr, port);
 			ret = init();
 			printf("init: %s \n", fi_strerror(ret));
@@ -34,7 +34,7 @@ benchmark::benchmark(int argc, char *argv[]) {
         case 3:
             addr = host2ip::resolve(argv[1]);
 			port = argv[2];
-			tag = NULL;
+            flag = NULL;
 			printf("client: %s %s \n", addr, port);
 			ret = init();
 			printf("init: %s \n", fi_strerror(ret));
@@ -60,7 +60,7 @@ benchmark::~benchmark() {
 int benchmark::init() {
     int ret;
 
-    ret = fi_getinfo(FIVER, addr, port, tag, conf->hints, &fi);
+    ret = fi_getinfo(FIVER, addr, port, flag, conf->hints, &fi);
     if(ret != 0){
         fprintf(stderr, "fi_getinfo");
         return ret;
