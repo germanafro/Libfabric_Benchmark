@@ -14,7 +14,7 @@ benchmark::benchmark(int argc, char *argv[]) {
 	int ret;
     switch(argc){
 		case 1:
-			addr = NULL;
+			addr = host2ip::resolve("localhost");
 			port = "1234";
 			flag = FI_SOURCE;
 			printf("server: %s %s \n", addr, port);
@@ -34,11 +34,11 @@ benchmark::benchmark(int argc, char *argv[]) {
         case 3:
             addr = host2ip::resolve(argv[1]);
 			port = argv[2];
-            flag = NULL;
+            flag = 0;
 			printf("client: %s %s \n", addr, port);
 			ret = init();
 			printf("init: %s \n", fi_strerror(ret));
-            client();
+            ret = client();
             break;
         default:
             puts("test");
@@ -189,16 +189,29 @@ int benchmark::comp(struct fid_cq *cq){
 int benchmark::server() {
     int ret;
     ssize_t rret;
-    size_t addrlen = 16; //FIXME this is addrlen size for sockets provider!!
-
+    size_t addrlen = 100; //FIXME this is addrlen size for sockets provider!!
+    size_t remote_addrlen = 100; //FIXME
+    size_t buff_size = conf->buff_size;
+    char * local_addr = new char(addrlen);
+    char * rremote_addr = new char(remote_addrlen);
+    //debug
+    ret = fi_getname(&ep->fid, buff, &buff_size); // get server address
+    if (ret) {
+        printf("fi_getname: %s\n", strerror(ret));
+        return -1;
+    }
+    fi_av_straddr(av, buff, local_addr, &addrlen);
 
     //wait for connection
-    printf("listening: \n");
-    fi_recv(ep, buff, sizeof(buff), 0, 0, NULL); // waiting to receive client address
+    printf("listening at: %s\n", local_addr);
+    fi_recv(ep, buff, conf->buff_size, 0, 0, NULL); // waiting to receive client address
     comp(rx_cq);
+    //debug
     fi_av_insert(av, buff, 1, &remote_addr, 0, NULL); // store client address
+    fi_av_straddr(av, &remote_addr, rremote_addr, &remote_addrlen);
+    printf("connection request from: %s\n", rremote_addr);
 
-    fi_recv(ep, buff, sizeof(buff), 0, 0, NULL); //queue up next listen
+    fi_recv(ep, buff, conf->buff_size, 0, 0, NULL); //queue up next listen
     fi_send(ep, buff, 1, NULL, remote_addr, NULL); //and tell client you're ready
     comp(tx_cq);
 
@@ -221,33 +234,33 @@ int benchmark::client() {
     int k = 0; //TODO debug counter - remove me
     int ret;
     ssize_t rret;
-    size_t buff_addrlen = 100; //FIXME
+    size_t buff_size = conf->buff_size;
     size_t local_addrlen = 100; //FIXME
     size_t remote_addrlen = 100; //FIXME
-    char * laddr = new char(local_addrlen);
-    char * raddr = new char(remote_addrlen);
+    char * laddr = new char(100);
+    char * raddr = new char(100);
+    fi_addr_t remote_addr = FI_ADDR_UNSPEC;
 
     //laddr = (char*)malloc(sizeof(char*) * 30);
     //raddr = (char*)malloc(sizeof(char*) * 30);
 
-    ret = fi_av_insert(av, &fi->dest_addr, 1, &remote_addr, 0, NULL); // insert server address
-    if (ret) {
-        printf("fi_av_insert: %s\n", strerror(ret));
-        return -1;
-    }
-
-    ret = fi_getname(&ep->fid, buff, &buff_addrlen); // get client address
+    ret = fi_getname(&ep->fid, buff, &buff_size); // get client address
     if (ret) {
         printf("fi_getname: %s\n", strerror(ret));
        // return -1;
     }
-
     fi_av_straddr(av, buff, laddr, &local_addrlen);
+
+    ret = fi_av_insert(av, fi->dest_addr, 1, &remote_addr, 0, NULL); // insert server address
+    if (ret < 0) {
+        printf("fi_av_insert: %s %d\n", strerror(ret), ret);
+        return -1;
+    }
     fi_av_straddr(av, &remote_addr, raddr, &remote_addrlen);
     //fi_av_straddr(av, fi->dest_addr, raddr, &remote_addrlen);
-    printf("client: local: %s (%d), remote: %s (%d) \n", laddr, local_addrlen, raddr, remote_addrlen);
+    printf("client: local: %s (%d), remote: %s (%d)  %d\n", laddr, (int)local_addrlen, raddr, (int)remote_addrlen);
 
-    rret = fi_send(ep, buff, buff_addrlen, NULL, remote_addr, NULL); // send client address to server address
+    rret = fi_send(ep, buff, buff_size, NULL, remote_addr, NULL); // send client address to server address
     if (rret) {
         perror("fi_send");
         return (int)ret;
