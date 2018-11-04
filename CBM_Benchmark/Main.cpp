@@ -5,8 +5,6 @@
 
 using namespace std;
 
-void *msg_buff;
-void *ctrl_buff;
 struct ctx *ctx;
 
 Config * config;
@@ -72,7 +70,7 @@ void * client_thread(void *arg)
 		}
 
 		int temp;
-        memcpy(&temp, msg_buff, sizeof(int));
+        memcpy(&temp, inode->msg_buff, sizeof(int));
 
 		pthread_mutex_lock(&ctx->lock);
 		while (!ctx->ready)
