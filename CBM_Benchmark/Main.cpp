@@ -71,12 +71,15 @@ void * client_thread(void *arg)
 			break;
 		}
 
+		int temp;
+        memcpy(&temp, msg_buff, sizeof(int));
+
 		pthread_mutex_lock(&ctx->lock);
 		while (!ctx->ready)
 			pthread_cond_wait(&ctx->cond, &ctx->lock);
 		ctx->ready = 0;
 		pthread_mutex_unlock(&ctx->lock);
-		printf("thread[%d] iter %d: fi_read: %d\n", ctx->id, i, inode->msg_buff);
+		printf("thread[%d] iter %d: fi_read: %d\n", ctx->id, i, temp);
 	}
 	return 0;
 }
