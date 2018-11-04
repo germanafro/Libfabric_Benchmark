@@ -108,8 +108,8 @@ int ProcessingNode::initServer()
 
 		memcpy(ctrl_buff, &keys, sizeof(keys));
 
-        //char * teststring = "test";
-        memcpy(msg_buff, 0, sizeof(int));
+        int temp = 0;
+        memcpy(msg_buff, &temp, sizeof(int));
 
 
 		rret = fi_send(ep, ctrl_buff, sizeof(keys), fi_mr_desc(mr), 0, NULL);
