@@ -121,7 +121,10 @@ int ProcessingNode::initServer()
 			return ret;
 		}
         char * teststring = "test";
-        memcpy(msg_buff, teststring, sizeof(teststring));
+		for(int i=0; i<(config->msg_size/ sizeof(int));i++ ){
+		    msg_buff[i] = 0;
+		}
+        //memcpy(msg_buff, teststring, sizeof(teststring));
 
 		printf("connected\n");
 

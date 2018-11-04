@@ -11,6 +11,8 @@ const char * Config::console_spacer()
 Config::Config()
 {
 	buff_size = 32 * 1024 * 1024;
+	msg_size = sizeof(int) * 10;
+	ctrl_size = 32 * 1024 * 1024;
 
 	hints = fi_allocinfo();
 	if (!hints) {

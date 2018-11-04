@@ -31,7 +31,10 @@ class Config
 public:
 	Config();
 	~Config();
+
 	size_t buff_size;
+    size_t ctrl_size;
+    size_t msg_size;
 	struct fi_opt * option;
 	struct fi_info * hints;
 	//console art

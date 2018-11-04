@@ -20,18 +20,20 @@ Node::~Node()
 	fi_close(&domain->fid);
 	fi_close(&fabric->fid);
 	fi_freeinfo(fi);
+	//free(msg_buff); // TODO is this necessary or will fi_close(mr) free this resource?
+	free(ctrl_buff);
 }
 
 int Node::init()
 {
 	int ret;
 
-    msg_buff = malloc(config->buff_size);
+    msg_buff = malloc(config->msg_size);
     if (!msg_buff) {
         perror("malloc");
         return -1;
     }
-    ctrl_buff = malloc(config->buff_size);
+    ctrl_buff = (int[])malloc(config->ctrl_size);
     if (!msg_buff) {
         perror("malloc");
         return -1;
