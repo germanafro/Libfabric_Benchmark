@@ -119,6 +119,8 @@ int ProcessingNode::initServer()
 			perror("fi_cq_sread");
 			return ret;
 		}
+        char * teststring = "test";
+        memcpy(buff, teststring, sizeof(teststring));
 
 		printf("connected\n");
 
