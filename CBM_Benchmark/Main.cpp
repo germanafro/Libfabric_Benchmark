@@ -63,7 +63,7 @@ void * client_thread(void *arg)
 	ssize_t ret;
 	for (i = 0; i < ctx->count; i++) {
 		ret = fi_read(inode->ep, inode->msg_buff, sizeof(int)/*ctx->size*/, fi_mr_desc(inode->mr),
-			0, inode->keys.addr + sizeof(int)*i, inode->keys.rkey, ctx);
+			0, inode->keys.addr + sizeof(int)*ctx->id, inode->keys.rkey, ctx);
 		if (ret) {
 			perror("fi_read");
 			break;
