@@ -106,9 +106,9 @@ int ProcessingNode::initServer()
             return ret;
         }
 
-		memcpy(msg_buff, &keys, sizeof(keys));
+		memcpy(ctrl_buff, &keys, sizeof(keys));
 
-		rret = fi_send(ep, msg_buff, sizeof(keys), fi_mr_desc(mr), 0, NULL);
+		rret = fi_send(ep, ctrl_buff, sizeof(keys), fi_mr_desc(mr), 0, NULL);
 		if (rret) {
 			printf("fi_send: %s\n", fi_strerror((int)rret));
 			return (int)rret;

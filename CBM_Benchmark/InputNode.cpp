@@ -62,7 +62,7 @@ int InputNode::initClient(void * cq_thread(void* arg))
 	}
 
 	ssize_t rret;
-	rret = fi_recv(ep, msg_buff, sizeof(keys), fi_mr_desc(mr), 0, NULL);
+	rret = fi_recv(ep, ctrl_buff, sizeof(keys), fi_mr_desc(mr), 0, NULL);
 	if (rret) {
 		perror("fi_recv");
 		return (int)rret;
@@ -101,7 +101,7 @@ int InputNode::initClient(void * cq_thread(void* arg))
 		return ret;
 	}
 
-	memcpy(&keys, msg_buff, sizeof(keys));
+	memcpy(&keys, ctrl_buff, sizeof(keys));
 
 	run = 1;
 	ret = pthread_create(&thread, NULL, cq_thread, NULL);
