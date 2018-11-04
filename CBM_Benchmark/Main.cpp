@@ -76,8 +76,15 @@ void * client_thread(void *arg)
 
         int temp;
         memcpy(&temp, inode->msg_buff + sizeof(int)*ctx->id, sizeof(int));
-        printf("thread[%d] iter %d: fi_read: %d\n", ctx->id, i, temp);
+        printf("thread[%d] iter %d: fi_read: %d\n", ctx->id, i, temp++);
 		pthread_mutex_unlock(&ctx->lock);
+        memcpy(inode->msg_buff + sizeof(int)*ctx->id, &temp, sizeof(int));
+        ret = fi_write(inode->ep, inode->msg_buff + sizeof(int)*ctx->id , sizeof(int)/*ctx->size*/, fi_mr_desc(inode->mr),
+                      0, inode->keys.addr + sizeof(int)*ctx->id, inode->keys.rkey, ctx);
+        if (ret) {
+            perror("fi_read");
+            break;
+        }
 
 	}
 	return 0;
