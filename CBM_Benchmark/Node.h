@@ -12,7 +12,7 @@ public:
 	const char * addr; 
 	uint64_t flags; 
 	Config * config;
-	int msg_buff[10]; //TODO this is only temporary for testing
+	void * msg_buff;
     void * ctrl_buff;
 	struct keys keys;
 
