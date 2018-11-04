@@ -64,7 +64,7 @@ void * client_thread(void *arg)
 	int i;
 	ssize_t ret;
 	for (i = 0; i < ctx->count; i++) {
-		ret = fi_read(inode->ep, inode->msg_buff, ctx->size, fi_mr_desc(inode->mr),
+		ret = fi_read(inode->ep, inode->msg_buff[ctx->id], ctx->size, fi_mr_desc(inode->mr),
 			0, inode->keys.addr, inode->keys.rkey, ctx);
 		if (ret) {
 			perror("fi_read");
@@ -76,7 +76,7 @@ void * client_thread(void *arg)
 			pthread_cond_wait(&ctx->cond, &ctx->lock);
 		ctx->ready = 0;
 		pthread_mutex_unlock(&ctx->lock);
-		printf("thread[%d] iter %d: fi_read: %d\n", ctx->id, i, inode->msg_buff);
+		printf("thread[%d] iter %d: fi_read: %d\n", ctx->id, i, inode->msg_buff[ctx->id]);
 	}
 	return 0;
 }
