@@ -2,9 +2,9 @@
 
 
 
-char * Config::console_spacer()
+const char * Config::console_spacer()
 {
-	char spacer[] = "--------------------\n";
+	const char * spacer = "--------------------\n";
 	return spacer;
 }
 

@@ -2,7 +2,8 @@
 #include "host2ip.h"
 
 
-ProcessingNode::ProcessingNode(const char *addr, uint64_t flags, Config * config, void *buff, struct keys keys) : Node(addr, flags, config, buff)
+ProcessingNode::ProcessingNode(const char *addr, uint64_t flags, Config * config, void * msg_buff, void * ctrl_buff,
+        struct keys keys) : Node(addr, flags, config, msg_buff, ctrl_buff)
 {
 	this->keys = keys;
 }
@@ -105,9 +106,9 @@ int ProcessingNode::initServer()
             return ret;
         }
 
-		memcpy(buff, &keys, sizeof(keys));
+		memcpy(msg_buff, &keys, sizeof(keys));
 
-		rret = fi_send(ep, buff, sizeof(keys), fi_mr_desc(mr), 0, NULL);
+		rret = fi_send(ep, msg_buff, sizeof(keys), fi_mr_desc(mr), 0, NULL);
 		if (rret) {
 			printf("fi_send: %s\n", fi_strerror((int)rret));
 			return (int)rret;
@@ -120,7 +121,7 @@ int ProcessingNode::initServer()
 			return ret;
 		}
         char * teststring = "test";
-        memcpy(buff, teststring, sizeof(teststring));
+        memcpy(msg_buff, teststring, sizeof(teststring));
 
 		printf("connected\n");
 

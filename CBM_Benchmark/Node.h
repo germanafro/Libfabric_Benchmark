@@ -5,14 +5,15 @@
 class Node
 {
 public:
-	Node(const char *addr, uint64_t flags, Config * config, void *buff);
+	Node(const char *addr, uint64_t flags, Config * config, void *msg_buff, void *ctrl_buff);
 	~Node();
 	int init();
 
 	const char * addr; 
 	uint64_t flags; 
 	Config * config;
-	void * buff;
+	void * msg_buff;
+    void * ctrl_buff;
 
 	struct fi_info *fi;
 	struct fid_fabric *fabric;

@@ -6,7 +6,7 @@ class InputNode :
 	public Node
 {
 public:
-	InputNode(const char *addr, uint64_t flags, Config * config, void *buff, struct keys keys);
+	InputNode(const char *addr, uint64_t flags, Config * config, void * msg_buff, void * ctrl_buff, struct keys keys);
 	~InputNode();
 
 	int initClient(void * cq_thread(void* arg));

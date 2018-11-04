@@ -3,7 +3,8 @@
 
 using namespace std;
 /* m receive, n transfer node */
-InputNode::InputNode(const char *addr, uint64_t flags, Config * config, void *buff, struct keys keys) : Node(addr, flags, config, buff)
+InputNode::InputNode(const char *addr, uint64_t flags, Config * config, void *msg_buff, void *ctrl_buff,
+        struct keys keys) : Node(addr, flags, config, msg_buff, ctrl_buff)
 {
 	this->keys = keys;
 
@@ -63,7 +64,7 @@ int InputNode::initClient(void * cq_thread(void* arg))
 	}
 
 	ssize_t rret;
-	rret = fi_recv(ep, buff, sizeof(keys), fi_mr_desc(mr), 0, NULL);
+	rret = fi_recv(ep, msg_buff, sizeof(keys), fi_mr_desc(mr), 0, NULL);
 	if (rret) {
 		perror("fi_recv");
 		return (int)rret;
@@ -102,7 +103,7 @@ int InputNode::initClient(void * cq_thread(void* arg))
 		return ret;
 	}
 
-	memcpy(&keys, buff, sizeof(keys));
+	memcpy(&keys, msg_buff, sizeof(keys));
 
 	run = 1;
 	ret = pthread_create(&thread, NULL, cq_thread, NULL);

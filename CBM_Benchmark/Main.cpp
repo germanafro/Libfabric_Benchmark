@@ -5,7 +5,8 @@
 
 using namespace std;
 
-void *buff;
+void *msg_buff;
+void *ctrl_buff;
 struct ctx *ctx;
 struct keys keys;
 
@@ -15,7 +16,7 @@ InputNode * inode;
 
 int server()
 {
-	pnode = new ProcessingNode(NULL, FI_SOURCE, config, buff, keys);
+	pnode = new ProcessingNode(NULL, FI_SOURCE, config, msg_buff, ctrl_buff, keys);
 	int ret = pnode->init();
 	if (ret)
 		return ret;
@@ -64,7 +65,7 @@ void * client_thread(void *arg)
 	int i;
 	ssize_t ret;
 	for (i = 0; i < ctx->count; i++) {
-		ret = fi_read(inode->ep, inode->buff, ctx->size, fi_mr_desc(inode->mr),
+		ret = fi_read(inode->ep, inode->msg_buff, ctx->size, fi_mr_desc(inode->mr),
 			0, inode->keys.addr, inode->keys.rkey, ctx);
 		if (ret) {
 			perror("fi_read");
@@ -76,14 +77,14 @@ void * client_thread(void *arg)
 			pthread_cond_wait(&ctx->cond, &ctx->lock);
 		ctx->ready = 0;
 		pthread_mutex_unlock(&ctx->lock);
-		printf("thread[%d] iter %d: fi_read: %s\n", ctx->id, i, (char*)inode->buff);
+		printf("thread[%d] iter %d: fi_read: %s\n", ctx->id, i, (char*)inode->msg_buff);
 	}
 	return 0;
 }
 
 int client(char *addr, int threads, int size, int count) 
 {
-	inode = new InputNode(addr, 0, config, buff, keys);
+	inode = new InputNode(addr, 0, config, msg_buff, ctrl_buff, keys);
 
 	int ret = inode->init();
 	if (ret)
@@ -127,14 +128,14 @@ main(int argc, char *argv[])
 {
 	config = new Config();
 
-	buff = malloc(config->buff_size);
-	if (!buff) {
+	msg_buff = malloc(config->buff_size);
+	if (!msg_buff) {
 		perror("malloc");
 		return -1;
 	}
 
 	if (argc == 1) {
-		keys.addr = (uint64_t)buff;
+		keys.addr = (uint64_t)msg_buff;
 		return server();
 	}
 

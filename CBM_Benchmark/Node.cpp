@@ -2,12 +2,13 @@
 
 
 
-Node::Node(const char *addr, uint64_t flags, Config * config, void *buff)
+Node::Node(const char *addr, uint64_t flags, Config * config, void *msg_buff, void *ctrl_buff)
 {
 	this->addr = addr;
 	this->flags = flags;
 	this->config = config;
-	this->buff = buff;
+	this->msg_buff = msg_buff;
+	this->ctrl_buff = ctrl_buff;
 }
 
 // yeah this will cause big problems if we didnt init() yet... so always run init() ^-^
@@ -74,7 +75,7 @@ int Node::init()
 		return ret;
 	}
 
-	ret = fi_mr_reg(domain, buff, config->buff_size,
+	ret = fi_mr_reg(domain, msg_buff, config->buff_size,
 		FI_REMOTE_READ | FI_REMOTE_WRITE | FI_SEND | FI_RECV,
 		0, 0, 0, &mr, NULL);
 	if (ret) {

@@ -35,7 +35,7 @@ public:
 	struct fi_opt * option;
 	struct fi_info * hints;
 	//console art
-	static char * console_spacer();
+	static const char * console_spacer();
 private:
 
 };
