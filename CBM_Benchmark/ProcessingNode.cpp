@@ -46,15 +46,18 @@ int ProcessingNode::initServer()
 		printf("listening\n");
 
 		rret = fi_eq_sread(eq, &event, &entry, sizeof(entry), -1, 0);
-		if (rret != sizeof(entry)) {
-			perror("fi_eq_sread");
-			return (int)rret;
-		}
-
-		if (event != FI_CONNREQ) {
-			fprintf(stderr, "invalid event %u\n", event);
-			return -1;
-		}
+        if (rret > 0){
+            if (event != FI_CONNREQ) {
+                fprintf(stderr, "invalid event %u\n", event);
+                return -1;
+            }
+        }
+        else if (rret != -FI_EAGAIN) {
+            struct fi_eq_err_entry err_entry;
+            fi_eq_readerr(eq, &err_entry, 0);
+            printf("%s %s \n", fi_strerror(err_entry.err), fi_eq_strerror(eq, err_entry.prov_errno, err_entry.err_data, NULL, 0));
+            return ret;
+        }
 
 		printf("connection request\n");
 
@@ -83,21 +86,24 @@ int ProcessingNode::initServer()
 		}
 
 		rret = fi_eq_sread(eq, &event, &entry, sizeof(entry), -1, 0);
-		if (rret != sizeof(entry)) {
-			perror("fi_eq_sread");
-			return (int)rret;
-		}
-
-		if (event != FI_CONNECTED) {
-			fprintf(stderr, "invalid event %u\n", event);
-			return -1;
-		}
+        if (rret > 0){
+            if (event != FI_CONNECTED) {
+                fprintf(stderr, "invalid event %u\n", event);
+                return -1;
+            }
+        }
+        else if (rret != -FI_EAGAIN) {
+            struct fi_eq_err_entry err_entry;
+            fi_eq_readerr(eq, &err_entry, 0);
+            printf("%s %s \n", fi_strerror(err_entry.err), fi_eq_strerror(eq, err_entry.prov_errno, err_entry.err_data, NULL, 0));
+            return ret;
+        }
 
 		memcpy(buff, &keys, sizeof(keys));
 
 		rret = fi_send(ep, buff, sizeof(keys), fi_mr_desc(mr), 0, NULL);
 		if (rret) {
-			printf("fi_send: %s", fi_strerror((int)rret));
+			printf("fi_send: %s\n", fi_strerror((int)rret));
 			return (int)rret;
 		}
 
