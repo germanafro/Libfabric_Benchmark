@@ -71,7 +71,6 @@ int InputNode::initClient(void * cq_thread(void* arg))
 
 
 	ret = fi_connect(ep, fi->dest_addr, NULL, 0);
-	fprintf(stderr, "connecting: %s\n", fi_strerror(ret));
 	if (ret) {
 		perror("fi_connect");
 		return ret;
@@ -81,16 +80,20 @@ int InputNode::initClient(void * cq_thread(void* arg))
 	uint32_t event;
 
 	rret = fi_eq_sread(eq, &event, &entry, sizeof(entry), -1, 0);
-	if (rret != sizeof(entry)) {
+    if (rret > 0){
+        if (event != FI_CONNECTED) {
+            fprintf(stderr, "invalid event %u\n", event);
+            return -1;
+        }
+    }
+    else if (rret != -FI_EAGAIN) {
+        struct fi_eq_err_entry err_entry;
+        fi_eq_readerr(eq, &err_entry, 0);
+        printf("%s %s \n", fi_strerror(err_entry.err), fi_eq_strerror(eq, err_entry.prov_errno, err_entry.err_data, NULL, 0));
+        return ret;
+    }
 
-		perror("fi_eq_sread");
-		return (int)rret;
-	}
 
-	if (event != FI_CONNECTED) {
-		fprintf(stderr, "invalid event %u\n", event);
-		return -1;
-	}
 
 	struct fi_cq_msg_entry comp;
 	ret = fi_cq_sread(cq, &comp, 1, NULL, -1);

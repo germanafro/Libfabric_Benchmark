@@ -97,7 +97,7 @@ int ProcessingNode::initServer()
 
 		rret = fi_send(ep, buff, sizeof(keys), fi_mr_desc(mr), 0, NULL);
 		if (rret) {
-			perror("fi_send");
+			printf("fi_send: %s", fi_strerror((int)rret));
 			return (int)rret;
 		}
 
