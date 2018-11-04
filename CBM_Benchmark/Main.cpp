@@ -76,7 +76,7 @@ void * client_thread(void *arg)
 			pthread_cond_wait(&ctx->cond, &ctx->lock);
 		ctx->ready = 0;
 		pthread_mutex_unlock(&ctx->lock);
-		printf("thread[%d]: fi_read: %s\n", i, (char*)inode->buff);
+		printf("thread[%d] iter %d: fi_read: %s\n", ctx.id, i, (char*)inode->buff);
 	}
 	return 0;
 }
@@ -95,6 +95,7 @@ int client(char *addr, int threads, int size, int count)
 
 	int i;
 	for (i = 0; i < threads; i++) {
+	    ctx[i].id = i;
 		ret = pthread_create(&ctx[i].thread, NULL,
 			client_thread, &ctx[i]);
 		if (ret) {

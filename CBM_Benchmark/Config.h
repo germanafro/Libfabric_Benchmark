@@ -23,6 +23,7 @@ struct ctx {
 	int ready;
 	int count;
 	int size;
+	int id;
 };
 
 class Config
