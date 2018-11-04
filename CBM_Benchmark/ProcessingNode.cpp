@@ -108,7 +108,7 @@ int ProcessingNode::initServer()
 
 		memcpy(ctrl_buff, &keys, sizeof(keys));
 
-        int temp[] = {0,0,0,0,0,0,0,0,0,0};
+        int temp[] = {0,1,2,3,4,5,6,7,8,9};
         memcpy(msg_buff, &temp, sizeof(int)*10);
 
 
