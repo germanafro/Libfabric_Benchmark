@@ -59,7 +59,7 @@ int ProcessingNode::initServer()
             return ret;
         }
 
-		printf("connection request\n");
+		printf("connection request: %s\n", entry.info->fabric_attr->name);
 
 		ret = fi_endpoint(domain, entry.info, &ep, NULL);
 		if (ret) {
@@ -78,6 +78,12 @@ int ProcessingNode::initServer()
 			perror("fi_ep_bind(cq)");
 			return ret;
 		}
+
+        ret = fi_enable(ep);
+        if (ret) {
+            perror("fi_enable");
+            return ret;
+        }
 
 		ret = fi_accept(ep, NULL, 0);
 		if (ret) {
