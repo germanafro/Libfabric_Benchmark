@@ -71,8 +71,8 @@ void * client_thread(void *arg)
 			break;
 		}
 
-		int temp = 0;
-        //memcpy(&temp, msg_buff, sizeof(int));
+		int temp;
+        memcpy(&temp, msg_buff, sizeof(int));
 
 		pthread_mutex_lock(&ctx->lock);
 		while (!ctx->ready)
