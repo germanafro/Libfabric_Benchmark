@@ -8,7 +8,6 @@ using namespace std;
 void *msg_buff;
 void *ctrl_buff;
 struct ctx *ctx;
-struct keys keys;
 
 Config * config;
 ProcessingNode * pnode;
@@ -16,7 +15,7 @@ InputNode * inode;
 
 int server()
 {
-	pnode = new ProcessingNode(NULL, FI_SOURCE, config, msg_buff, ctrl_buff, keys);
+	pnode = new ProcessingNode(NULL, FI_SOURCE, config);
 	int ret = pnode->init();
 	if (ret)
 		return ret;
@@ -84,7 +83,7 @@ void * client_thread(void *arg)
 
 int client(char *addr, int threads, int size, int count) 
 {
-	inode = new InputNode(addr, 0, config, msg_buff, ctrl_buff, keys);
+	inode = new InputNode(addr, 0, config);
 
 	int ret = inode->init();
 	if (ret)
@@ -128,14 +127,7 @@ main(int argc, char *argv[])
 {
 	config = new Config();
 
-	msg_buff = malloc(config->buff_size);
-	if (!msg_buff) {
-		perror("malloc");
-		return -1;
-	}
-
 	if (argc == 1) {
-		keys.addr = (uint64_t)msg_buff;
 		return server();
 	}
 

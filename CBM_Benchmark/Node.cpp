@@ -2,13 +2,11 @@
 
 
 
-Node::Node(const char *addr, uint64_t flags, Config * config, void *msg_buff, void *ctrl_buff)
+Node::Node(const char *addr, uint64_t flags, Config * config)
 {
 	this->addr = addr;
 	this->flags = flags;
 	this->config = config;
-	this->msg_buff = msg_buff;
-	this->ctrl_buff = ctrl_buff;
 }
 
 // yeah this will cause big problems if we didnt init() yet... so always run init() ^-^
@@ -27,6 +25,17 @@ Node::~Node()
 int Node::init()
 {
 	int ret;
+
+    msg_buff = malloc(config->buff_size);
+    if (!msg_buff) {
+        perror("malloc");
+        return -1;
+    }
+    ctrl_buff = malloc(config->buff_size);
+    if (!msg_buff) {
+        perror("malloc");
+        return -1;
+    }
 
 	ret = fi_getinfo(FIVER, addr, "1234", flags, config->hints, &fi);
 	if (ret) {

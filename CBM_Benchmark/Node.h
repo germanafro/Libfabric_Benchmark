@@ -5,7 +5,7 @@
 class Node
 {
 public:
-	Node(const char *addr, uint64_t flags, Config * config, void *msg_buff, void *ctrl_buff);
+	Node(const char *addr, uint64_t flags, Config * config);
 	~Node();
 	int init();
 
@@ -14,6 +14,7 @@ public:
 	Config * config;
 	void * msg_buff;
     void * ctrl_buff;
+	struct keys keys;
 
 	struct fi_info *fi;
 	struct fid_fabric *fabric;

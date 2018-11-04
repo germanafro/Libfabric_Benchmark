@@ -3,10 +3,8 @@
 
 using namespace std;
 /* m receive, n transfer node */
-InputNode::InputNode(const char *addr, uint64_t flags, Config * config, void *msg_buff, void *ctrl_buff,
-        struct keys keys) : Node(addr, flags, config, msg_buff, ctrl_buff)
+InputNode::InputNode(const char *addr, uint64_t flags, Config * config) : Node(addr, flags, config)
 {
-	this->keys = keys;
 
 
 	/*// init the EPs
