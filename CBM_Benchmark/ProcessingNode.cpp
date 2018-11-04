@@ -112,7 +112,7 @@ int ProcessingNode::initServer()
 
         size_t offset = sizeof(int);
         for(int i=0; i<10;i++ ){ //TODO temporary testvalues
-            memcpy(msg_buff+offset*(sizeof(int)), 0, sizeof(int));
+            memcpy(msg_buff, 0, sizeof(int));
         }
 
 		rret = fi_send(ep, ctrl_buff, sizeof(keys), fi_mr_desc(mr), 0, NULL);
