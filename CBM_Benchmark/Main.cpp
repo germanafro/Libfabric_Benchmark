@@ -76,7 +76,7 @@ void * client_thread(void *arg)
 			pthread_cond_wait(&ctx->cond, &ctx->lock);
 		ctx->ready = 0;
 		pthread_mutex_unlock(&ctx->lock);
-		printf("thread[%d] iter %d: fi_read: %d\n", ctx->id, i, inode->msg_buff[ctx->id]);
+		printf("thread[%d] iter %d: fi_read: %d\n", ctx->id, i, inode->msg_buff[0]);
 	}
 	return 0;
 }
