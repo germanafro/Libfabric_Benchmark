@@ -121,7 +121,7 @@ int ProcessingNode::initServer()
 			return ret;
 		}
         char * teststring = "test";
-		for(int i=0; i<(config->msg_size/ sizeof(int));i++ ){
+		for(int i=0; i<10;i++ ){ //TODO temporary testvalues
 		    msg_buff[i] = 0;
 		}
         //memcpy(msg_buff, teststring, sizeof(teststring));

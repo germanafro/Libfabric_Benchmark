@@ -28,11 +28,11 @@ int Node::init()
 {
 	int ret;
 
-    msg_buff = (int[])malloc(config->msg_size);
+    /*msg_buff = malloc(config->msg_size);
     if (!msg_buff) {
         perror("malloc");
         return -1;
-    }
+    }*/
     ctrl_buff = malloc(config->ctrl_size);
     if (!msg_buff) {
         perror("malloc");
