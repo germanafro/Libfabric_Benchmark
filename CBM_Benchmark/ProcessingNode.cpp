@@ -108,6 +108,12 @@ int ProcessingNode::initServer()
 
 		memcpy(ctrl_buff, &keys, sizeof(keys));
 
+        //char * teststring = "test";
+        //memcpy(msg_buff, teststring, sizeof(teststring));
+        for(int i=0; i<10;i++ ){ //TODO temporary testvalues
+            msg_buff[i] = 0;
+        }
+
 		rret = fi_send(ep, ctrl_buff, sizeof(keys), fi_mr_desc(mr), 0, NULL);
 		if (rret) {
 			printf("fi_send: %s\n", fi_strerror((int)rret));
@@ -120,11 +126,6 @@ int ProcessingNode::initServer()
 			perror("fi_cq_sread");
 			return ret;
 		}
-        char * teststring = "test";
-		for(int i=0; i<10;i++ ){ //TODO temporary testvalues
-		    msg_buff[i] = 0;
-		}
-        //memcpy(msg_buff, teststring, sizeof(teststring));
 
 		printf("connected\n");
 
