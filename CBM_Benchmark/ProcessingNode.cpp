@@ -4,7 +4,7 @@
 
 ProcessingNode::ProcessingNode(const char *addr, uint64_t flags, Config * config) : Node(addr, flags, config)
 {
-    keys.addr = (uint64_t)msg_buff;
+
 }
 
 
@@ -16,6 +16,7 @@ int ProcessingNode::initServer()
 {
 	int ret;
 
+    keys.addr = (uint64_t)msg_buff;
 	keys.rkey = fi_mr_key(mr);
 
 	ret = fi_passive_ep(fabric, fi, &pep, NULL);
