@@ -82,6 +82,7 @@ int InputNode::initClient(void * cq_thread(void* arg))
 
 	rret = fi_eq_sread(eq, &event, &entry, sizeof(entry), -1, 0);
 	if (rret != sizeof(entry)) {
+
 		perror("fi_eq_sread");
 		return (int)rret;
 	}

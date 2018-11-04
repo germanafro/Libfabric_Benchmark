@@ -1,6 +1,6 @@
 //
 // Created by andreas on 27.10.18.
-//
+// Source: https://stackoverflow.com/questions/2151854/c-resolve-a-host-ip-address-from-a-url
 
 #include "host2ip.h"
 #include <stdio.h>

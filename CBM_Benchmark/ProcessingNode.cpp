@@ -35,7 +35,7 @@ int ProcessingNode::initServer()
 		perror("fi_listen");
 		return ret;
 	}
-
+	size_t buff_Size = config->buff_size;
 	struct fi_eq_cm_entry entry;
 	uint32_t event;
 	ssize_t rret;
@@ -43,8 +43,7 @@ int ProcessingNode::initServer()
 
 	while (1) {
 
-		rret = fi_getname(pep->fid, fi->src_addr, fi->src_addrlen);
-		printf("listening at %s");
+		printf("listening\n");
 
 		rret = fi_eq_sread(eq, &event, &entry, sizeof(entry), -1, 0);
 		if (rret != sizeof(entry)) {

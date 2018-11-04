@@ -148,15 +148,15 @@ main(int argc, char *argv[])
 	if (addr == NULL){
 	    return -1;
 	}
-	fprintf(stderr, "addr: %s\n", addr);
+	printf("addr: %s\n", addr);
 	int threads = atoi(argv[2]);
-	fprintf(stderr, "threads: %d\n", threads);
+	printf("threads: %d\n", threads);
 	int size = atoi(argv[3]);
-	fprintf(stderr, "size: %d\n", size);
+	printf("size: %d\n", size);
 	int count = atoi(argv[4]);
-	fprintf(stderr, "count: %d\n", count);
+	printf("count: %d\n", count);
 
-	ctx = reinterpret_cast<struct ctx *>(calloc(threads, sizeof(*ctx)));
+	ctx = (struct ctx *)calloc(threads, sizeof(*ctx));
 	if (!ctx) {
 		perror("calloc");
 		return -1;

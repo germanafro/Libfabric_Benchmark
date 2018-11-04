@@ -32,12 +32,12 @@ int Node::init()
 		perror("fi_getinfo");
 		return ret;
 	}
-
 	ret = fi_fabric(fi->fabric_attr, &fabric, NULL);
 	if (ret) {
 		perror("fi_fabric");
 		return ret;
 	}
+    printf("fi_getinfo: %s %s\n", fi->fabric_attr->prov_name, fi->fabric_attr->name);
 
 	struct fi_eq_attr eq_attr;
 	eq_attr.size = 0;
