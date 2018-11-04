@@ -28,7 +28,7 @@ int Node::init()
 {
 	int ret;
 
-    msg_buff = malloc(config->msg_size);
+    msg_buff = (int*)malloc(config->msg_size);
     if (!msg_buff) {
         perror("malloc");
         return -1;
