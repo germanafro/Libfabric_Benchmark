@@ -61,7 +61,7 @@ void * client_thread(void *arg)
 	struct ctx *ctx = (struct ctx*)arg;
 	int i;
 	ssize_t ret;
-	size_t msg_size = sizeof(int)//ctx->size //TODO determine datatype
+	size_t msg_size = sizeof(int);//ctx->size; //TODO determine datatype
 	for (i = 0; i < ctx->count; i++) {
 		ret = fi_read(inode->ep, inode->msg_buff + msg_size*ctx->id , msg_size, fi_mr_desc(inode->mr),
 			0, inode->keys.addr + msg_size*ctx->id, inode->keys.rkey, ctx);
