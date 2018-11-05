@@ -138,7 +138,7 @@ int ProcessingNode::initServer()
 			return -1;
 		}
         memcpy(&temp, msg_buff, sizeof(int)*10);
-		printf("batch received:\n")
+		printf("batch received:\n");
 		for(int i = 0; i<10; i++){
             printf("%d\n", temp[i]);
 		}
