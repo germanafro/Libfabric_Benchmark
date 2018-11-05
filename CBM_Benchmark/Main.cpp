@@ -44,7 +44,7 @@ void * cq_thread(void * arg)
 			break;
 		}
 
-		if (comp.flags & FI_READ) {
+		if (comp.flags & (FI_READ|FI_WRITE)) {
 			struct ctx *ctx = (struct ctx*)comp.op_context;
 			pthread_mutex_lock(&ctx->lock);
 			ctx->ready = 1;
