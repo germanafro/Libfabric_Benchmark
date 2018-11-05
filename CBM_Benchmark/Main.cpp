@@ -61,9 +61,10 @@ void * client_thread(void *arg)
 	struct ctx *ctx = (struct ctx*)arg;
 	int i;
 	ssize_t ret;
+	size_t msg_size = sizeof(int)//ctx->size //TODO determine datatype
 	for (i = 0; i < ctx->count; i++) {
-		ret = fi_read(inode->ep, inode->msg_buff + sizeof(int)*ctx->id , sizeof(int)/*ctx->size*/, fi_mr_desc(inode->mr),
-			0, inode->keys.addr + sizeof(int)*ctx->id, inode->keys.rkey, ctx);
+		ret = fi_read(inode->ep, inode->msg_buff + msg_size*ctx->id , msg_size, fi_mr_desc(inode->mr),
+			0, inode->keys.addr + msg_size*ctx->id, inode->keys.rkey, ctx);
 		if (ret) {
 			perror("fi_read");
 			break;
@@ -75,12 +76,12 @@ void * client_thread(void *arg)
 		ctx->ready = 0;
 
         int temp;
-        memcpy(&temp, inode->msg_buff + sizeof(int)*ctx->id, sizeof(int));
+        memcpy(&temp, inode->msg_buff + msg_size*ctx->id, msg_size);
         printf("thread[%d] iter %d: fi_read: %d\n", ctx->id, i, temp++);
 		pthread_mutex_unlock(&ctx->lock);
-        memcpy(inode->msg_buff + sizeof(int)*ctx->id, &temp, sizeof(int));
-        ret = fi_write(inode->ep, inode->msg_buff + sizeof(int)*ctx->id , sizeof(int)/*ctx->size*/, fi_mr_desc(inode->mr),
-                      0, inode->keys.addr + sizeof(int)*ctx->id, inode->keys.rkey, ctx);
+        memcpy(inode->msg_buff + msg_size*ctx->id, &temp, msg_size);
+        ret = fi_write(inode->ep, inode->msg_buff + msg_size*ctx->id , msg_size, fi_mr_desc(inode->mr),
+                      0, inode->keys.addr + msg_size*ctx->id, inode->keys.rkey, ctx);
         if (ret) {
             perror("fi_read");
             break;

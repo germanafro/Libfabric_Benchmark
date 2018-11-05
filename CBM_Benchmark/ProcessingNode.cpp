@@ -137,6 +137,11 @@ int ProcessingNode::initServer()
 			fprintf(stderr, "invalid event %u\n", event);
 			return -1;
 		}
+        memcpy(&temp, msg_buff, sizeof(int)*10);
+		printf("batch received:\n")
+		for(int i = 0; i<10; i++){
+            printf("%d\n", temp[i]);
+		}
 
 		fi_close(&ep->fid);
 	}
