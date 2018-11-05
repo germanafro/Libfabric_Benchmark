@@ -78,14 +78,15 @@ void * client_thread(void *arg)
         int temp;
         memcpy(&temp, inode->msg_buff + msg_size*ctx->id, msg_size);
         printf("thread[%d] iter %d: fi_read: %d\n", ctx->id, i, temp++);
+		pthread_mutex_unlock(&ctx->lock);
+        printf("thread[%d] iter %d: fi_write: %d\n", ctx->id, i, temp);
         memcpy(inode->msg_buff + msg_size*ctx->id, &temp, msg_size);
         ret = fi_write(inode->ep, inode->msg_buff + msg_size*ctx->id , msg_size, fi_mr_desc(inode->mr),
-                       0, inode->keys.addr + msg_size*ctx->id, inode->keys.rkey, ctx);
+                      0, inode->keys.addr + msg_size*ctx->id, inode->keys.rkey, ctx);
         if (ret) {
             perror("fi_read");
             break;
         }
-		pthread_mutex_unlock(&ctx->lock);
 
 	}
 	return 0;
