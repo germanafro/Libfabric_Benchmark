@@ -74,11 +74,11 @@ void * client_thread(void *arg)
 		while (!ctx->ready)
 			pthread_cond_wait(&ctx->cond, &ctx->lock);
 		ctx->ready = 0;
+		pthread_mutex_unlock(&ctx->lock);
 
         int temp;
         memcpy(&temp, inode->msg_buff + msg_size*ctx->id, msg_size);
         printf("thread[%d] iter %d: fi_read: %d\n", ctx->id, i, temp++);
-		pthread_mutex_unlock(&ctx->lock);
         printf("thread[%d] iter %d: fi_write: %d\n", ctx->id, i, temp);
         memcpy(inode->msg_buff + msg_size*ctx->id, &temp, msg_size);
         ret = fi_write(inode->ep, inode->msg_buff + msg_size*ctx->id , msg_size, fi_mr_desc(inode->mr),
@@ -87,6 +87,12 @@ void * client_thread(void *arg)
             perror("fi_read");
             break;
         }
+
+        pthread_mutex_lock(&ctx->lock);
+        while (!ctx->ready)
+            pthread_cond_wait(&ctx->cond, &ctx->lock);
+        ctx->ready = 0;
+        pthread_mutex_unlock(&ctx->lock);
 
 	}
 	return 0;
