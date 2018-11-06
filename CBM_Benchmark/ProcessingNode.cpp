@@ -80,11 +80,11 @@ int ProcessingNode::initServer()
 			return ret;
 		}
 
-        ret = fi_enable(ep);
+        /*ret = fi_enable(ep);
         if (ret) {
             perror("fi_enable");
             return ret;
-        }
+        }*/
 
 		ret = fi_accept(ep, NULL, 0);
 		if (ret) {
