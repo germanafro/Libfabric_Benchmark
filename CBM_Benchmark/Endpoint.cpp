@@ -109,10 +109,9 @@ int Endpoint::cq_thread()
     uint32_t event;
 
     while (run) {
-        printf("debug: cq running");
         ret = fi_cq_sread(cq, &comp, 1, NULL, 1000);
         if (!run){
-            printf("debug: cq breaking");
+            printf("debug: cq breaking\n");
             break;
         }
         if (ret == -FI_EAGAIN)
@@ -125,13 +124,13 @@ int Endpoint::cq_thread()
 
         if (comp.flags & (FI_READ|FI_WRITE)) {
             struct ctx *ctx = (struct ctx*)comp.op_context;
-            printf("debug: cq ctx ready");
+            printf("debug: cq ctx ready\n");
             omp_set_lock(&ctx->lock);
             ctx->ready = 1;
             omp_unset_lock(&ctx->lock);
         }
     }
-    printf("debug: cq done");
+    printf("debug: cq done\n");
     return 0;
 }
 
@@ -279,10 +278,10 @@ int Endpoint::client(int thread)
                 printf("[%d] debug %d\n", thread, k++);
                 client_thread(ctx);
             }
+            run = 0;
 
         }
     }
-    run = 0;
     return 0;
 }
 
