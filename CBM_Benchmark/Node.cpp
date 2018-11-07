@@ -34,8 +34,8 @@ int Node::init(int mode)
     omp_set_num_threads(num_ep);
     omp_set_nested(1);
     int int_port = atoi(config->default_port);
-    char *port = new char(10);
     for(int i = 0; i<num_ep; i++){
+        char *port = new char(10);
         sprintf(port,"%d",int_port+i);
         printf("[%d] pushing Endpoint | addr: %s, port: %s\n", i, addr, port);
         eps.push_back(new Endpoint(addr, port, flags, config)); // TODO verbs provider addressing?
