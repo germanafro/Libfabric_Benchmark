@@ -136,7 +136,7 @@ int Endpoint::client_thread(struct ctx * ctxx )
 {
     int k = 0;
 
-#pragma omp parallel
+#pragma omp parallel num_threads(config->threads)
     {
      #pragma omp for
         for (int i = 0; i < config->threads; i++)
