@@ -189,6 +189,7 @@ int Endpoint::client_thread(struct ctx * ctxx )
                 omp_destroy_lock(&ctx->lock);
             }
     }
+    printf("job done");
     run = 0;
     return 0;
 }
