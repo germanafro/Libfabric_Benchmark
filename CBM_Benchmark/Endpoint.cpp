@@ -261,7 +261,7 @@ int Endpoint::client(int thread)
     printf("[%d] connected\n", thread);
     run = 1;
     printf("[%d] debug %d\n", thread, k++);
-#pragma omp parallel num_threads(config->threads+1)
+#pragma omp parallel num_threads(2)
     {
 #pragma omp sections
         {
