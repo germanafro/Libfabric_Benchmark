@@ -64,5 +64,5 @@ main(int argc, char *argv[])
 	int count = atoi(argv[4]);
 	printf("count: %d\n", count);
 
-	return client(addr, threads, size, count);
+	return client(addr, threads, num_ep, count);
 }
