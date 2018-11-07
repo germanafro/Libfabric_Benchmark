@@ -20,6 +20,7 @@ Endpoint::Endpoint(const char * addr, char * port,  uint64_t flags, Config * con
     int i;
     for (i = 0; i < config->threads; i++) {
         omp_init_lock(&ctx[i].lock);
+        ctx[i].ready = 0;
         ctx[i].count = config->count;
         ctx[i].size = config->max_packet_size;
     }
@@ -108,6 +109,7 @@ int Endpoint::cq_thread()
     uint32_t event;
 
     while (run) {
+        printf("debug: cq running");
         ret = fi_cq_sread(cq, &comp, 1, NULL, 1000);
         if (!run)
             break;
@@ -121,8 +123,8 @@ int Endpoint::cq_thread()
 
         if (comp.flags & (FI_READ|FI_WRITE)) {
             struct ctx *ctx = (struct ctx*)comp.op_context;
-            omp_set_lock(&ctx->lock);
             printf("debug: cq ctx ready");
+            omp_set_lock(&ctx->lock);
             ctx->ready = 1;
             omp_unset_lock(&ctx->lock);
         }
