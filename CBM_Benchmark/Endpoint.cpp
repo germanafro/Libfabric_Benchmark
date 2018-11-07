@@ -277,8 +277,8 @@ int Endpoint::client(int thread)
             {
                 printf("[%d] debug %d\n", thread, k++);
                 client_thread(ctx);
+                run = 0;
             }
-            run = 0;
 
         }
     }
