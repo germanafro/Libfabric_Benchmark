@@ -22,7 +22,7 @@ Node::~Node()
 	fi_close(&fabric->fid);
 	fi_freeinfo(fi);
 	//free(msg_buff); // TODO is this necessary or will fi_close(mr) free this resource?
-	free(ctrl_buff);
+	//free(ctrl_buff);
 }
 
 int Node::init()
