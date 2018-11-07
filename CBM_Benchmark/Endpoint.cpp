@@ -111,8 +111,10 @@ int Endpoint::cq_thread()
     while (run) {
         printf("debug: cq running");
         ret = fi_cq_sread(cq, &comp, 1, NULL, 1000);
-        if (!run)
+        if (!run){
+            printf("debug: cq breaking");
             break;
+        }
         if (ret == -FI_EAGAIN)
             continue;
 
@@ -190,7 +192,6 @@ int Endpoint::client_thread(struct ctx * ctxx )
             }
     }
     printf("job done");
-    run = 0;
     return 0;
 }
 
@@ -284,6 +285,7 @@ int Endpoint::client(int thread)
 
         }
     }
+    run = 0;
     return 0;
 }
 
