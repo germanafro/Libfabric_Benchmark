@@ -45,7 +45,7 @@ int Endpoint::init(int thread)
     int ret;
     struct fi_eq_attr eq_attr = config->eq_attr;
     struct fi_cq_attr cq_attr = config->cq_attr;
-
+    printf("[%d] initializing Endpoint | addr: %s, port: %s\n", thread, addr, port);
     ret= fi_getinfo(FIVER, addr, port, flags, config->hints, &fi);
     if (ret) {
         printf("[%d] fi_getinfo: %s\n", thread, fi_strerror(ret));

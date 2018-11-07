@@ -46,7 +46,6 @@ int Node::init(int mode)
         for (int n=0; n<num_ep; n++) {
             int ret;
             int thread = omp_get_thread_num();
-            printf("[%d] initializing Endpoint | addr: %s, port: %s\n", thread, addr, port);
             ret = eps[thread]->init(thread);
             printf("[%d] ep.init(): %s\n", thread, fi_strerror(ret));
 
