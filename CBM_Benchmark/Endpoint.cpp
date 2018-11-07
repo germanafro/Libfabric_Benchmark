@@ -131,7 +131,7 @@ int Endpoint::cq_thread()
             omp_unset_lock(&ctx->lock);
         }
     }
-
+    printf("debug: cq done");
     return 0;
 }
 
