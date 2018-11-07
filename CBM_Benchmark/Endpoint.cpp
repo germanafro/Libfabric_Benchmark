@@ -239,7 +239,7 @@ int Endpoint::client(int thread)
     else if (rret != -FI_EAGAIN) {
         struct fi_eq_err_entry err_entry;
         fi_eq_readerr(eq, &err_entry, 0);
-        printf("%s %s \n", fi_strerror(err_entry.err), fi_eq_strerror(eq, err_entry.prov_errno, err_entry.err_data, NULL, 0));
+        printf("[%d] %s %s \n", thread, fi_strerror(err_entry.err), fi_eq_strerror(eq, err_entry.prov_errno, err_entry.err_data, NULL, 0));
         return ret;
     }
 

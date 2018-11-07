@@ -13,7 +13,7 @@ Node * inode;
 int server()
 {
 	pnode = new Node(NULL, FI_SOURCE, config);
-	int ret = pnode->init(10, BM_SERVER);
+	int ret = pnode->init(1, BM_SERVER);
 	if (ret)
 		return ret;
 
@@ -26,7 +26,7 @@ int client(char *addr, int threads, int size, int count)
 {
 	inode = new Node(addr, 0, config);
 
-	int ret = inode->init(10, BM_CLIENT);
+	int ret = inode->init(1, BM_CLIENT);
 	if (ret)
 		return ret;
 
