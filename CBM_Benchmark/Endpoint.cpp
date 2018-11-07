@@ -155,13 +155,13 @@ int Endpoint::client_thread(struct ctx * ctxx )
                 ret = fi_read(ep, msg_buff + msg_size*ctx->id , msg_size, fi_mr_desc(mr),
                               0, keys.addr + msg_size*ctx->id, keys.rkey, ctx);
                 if (ret) {
-                    printf("[%d] fi_read: %s", thread, fi_strerror(ret) );
+                    printf("[%d] fi_read: %s\n", thread, fi_strerror(ret) );
                 }
 
                 while (!ctx->ready){
                     //wait
                 }
-                printf("debug: cq ctx not ready");
+                printf("debug: cq ctx not ready\n");
                 omp_set_lock(&ctx->lock);
                 ctx->ready = 0;
                 omp_unset_lock(&ctx->lock);
@@ -174,13 +174,13 @@ int Endpoint::client_thread(struct ctx * ctxx )
                 ret = fi_write(ep, msg_buff + msg_size*ctx->id , msg_size, fi_mr_desc(mr),
                                0, keys.addr + msg_size*ctx->id, keys.rkey, ctx);
                 if (ret) {
-                    printf("[%d] fi_write: %s", thread, fi_strerror(ret) );
+                    printf("[%d] fi_write: %s\n", thread, fi_strerror(ret) );
                 }
 
                 while (!ctx->ready){
                     //wait
                 }
-                printf("debug: cq ctx not ready");
+                printf("debug: cq ctx not ready\n");
                 omp_set_lock(&ctx->lock);
                 ctx->ready = 0;
                 omp_unset_lock(&ctx->lock);
@@ -188,7 +188,7 @@ int Endpoint::client_thread(struct ctx * ctxx )
                 omp_destroy_lock(&ctx->lock);
             }
     }
-    printf("job done");
+    printf("job done\n");
     return 0;
 }
 
