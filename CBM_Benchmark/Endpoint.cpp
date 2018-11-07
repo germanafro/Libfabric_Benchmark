@@ -19,8 +19,7 @@ Endpoint::Endpoint(const char * addr, char * port,  uint64_t flags, Config * con
 
     int i;
     for (i = 0; i < config->threads; i++) {
-        pthread_mutex_init(&ctx[i].lock, NULL);
-        pthread_cond_init(&ctx[i].cond, NULL);
+        omp_init_lock(&ctx[i].lock);
         ctx[i].count = config->count;
         ctx[i].size = config->max_packet_size;
     }
@@ -122,10 +121,9 @@ int Endpoint::cq_thread()
 
         if (comp.flags & (FI_READ|FI_WRITE)) {
             struct ctx *ctx = (struct ctx*)comp.op_context;
-            pthread_mutex_lock(&ctx->lock);
+            omp_set_lock(&ctx->lock);
             ctx->ready = 1;
-            pthread_cond_signal(&ctx->cond);
-            pthread_mutex_unlock(&ctx->lock);
+            omp_unset_lock(&ctx->lock);
         }
     }
 
@@ -145,7 +143,6 @@ int Endpoint::client_thread(struct ctx * ctxx )
                 printf("[%d] debug %d\n", thread, k++);
                 ctxx[i].id = i;
                 struct ctx * ctx = &ctxx[i];
-                omp_init_lock(&ctx->lock);
 
 
                 run = 0;
