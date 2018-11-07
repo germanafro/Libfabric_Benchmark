@@ -155,7 +155,7 @@ int Endpoint::client_thread(struct ctx * ctxx )
                 ret = fi_read(ep, msg_buff + msg_size*ctx->id , msg_size, fi_mr_desc(mr),
                               0, keys.addr + msg_size*ctx->id, keys.rkey, ctx);
                 if (ret) {
-                    print("[%d] fi_read: %s", thread, fi_strerror(ret) );
+                    printf("[%d] fi_read: %s", thread, fi_strerror(ret) );
                 }
 
                 omp_set_lock(&ctx->lock);
@@ -174,7 +174,7 @@ int Endpoint::client_thread(struct ctx * ctxx )
                 ret = fi_write(ep, msg_buff + msg_size*ctx->id , msg_size, fi_mr_desc(mr),
                                0, keys.addr + msg_size*ctx->id, keys.rkey, ctx);
                 if (ret) {
-                    print("[%d] fi_write: %s", thread, fi_strerror(ret) );
+                    printf("[%d] fi_write: %s", thread, fi_strerror(ret) );
                 }
 
                 omp_set_lock(&ctx->lock);
