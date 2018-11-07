@@ -147,8 +147,6 @@ int Endpoint::client_thread(struct ctx * ctxx )
                 ctxx[i].id = i;
                 struct ctx * ctx = &ctxx[i];
 
-
-                run = 0;
                 int i;
                 ssize_t ret;
                 size_t msg_size = sizeof(int);//ctx->size; //TODO determine datatype
@@ -191,6 +189,7 @@ int Endpoint::client_thread(struct ctx * ctxx )
                 omp_destroy_lock(&ctx->lock);
             }
     }
+    run = 0;
     return 0;
 }
 
