@@ -365,7 +365,7 @@ int Endpoint::server(int thread)
         }
 
         printf("[%d] debug %d\n", thread, k++);
-        printf ("%d %d", sizeof(ctrl_buff), sizeof(keys));
+        printf ("%d %d\n", sizeof(ctrl_buff), sizeof(keys));
         memcpy(ctrl_buff, &keys, sizeof(keys));
         printf("[%d] debug %d\n", thread, k++);
         int temp[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
