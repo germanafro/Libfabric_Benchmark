@@ -134,11 +134,15 @@ int Endpoint::cq_thread()
 
 int Endpoint::client_thread(struct ctx * ctxx )
 {
+    int k = 0;
+
 #pragma omp parallel
     {
      #pragma omp for
         for (int i = 0; i < config->threads; i++)
             {
+                int thread = omp_get_thread_num();
+                printf("[%d] debug %d\n", thread, k++);
                 ctxx[i].id = i;
                 struct ctx * ctx = &ctxx[i];
 
@@ -257,21 +261,23 @@ int Endpoint::client(int thread)
     printf("[%d] connected\n", thread);
     run = 1;
     printf("[%d] debug %d\n", thread, k++);
-    #pragma omp sections
+#pragma omp parallel num_threads(config->threads+1)
     {
-        printf("[%d] debug %d\n", thread, k++);
-        #pragma omp section
+#pragma omp sections
         {
-            printf("[%d] debug %d\n", thread, k++);
-            cq_thread();
-        }
-        #pragma omp section
-        {
-            printf("[%d] debug %d\n", thread, k++);
-           client_thread(ctx);
-         }
+#pragma omp section
+            {
+                printf("[%d] debug %d\n", thread, k++);
+                cq_thread();
+            }
+#pragma omp section
+            {
+                printf("[%d] debug %d\n", thread, k++);
+                client_thread(ctx);
+            }
 
-    };
+        }
+    }
     return 0;
 }
 
