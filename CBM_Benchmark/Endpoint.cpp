@@ -149,45 +149,44 @@ int Endpoint::client_thread(struct ctx * ctxx )
                 ctxx[i].id = i;
                 struct ctx * ctx = &ctxx[i];
 
-                int i;
                 ssize_t ret;
                 size_t msg_size = sizeof(int);//ctx->size; //TODO determine datatype
-                for (i = 0; i < ctx->count; i++) {
-                    ret = fi_read(ep, msg_buff + msg_size*ctx->id , msg_size, fi_mr_desc(mr),
-                                  0, keys.addr + msg_size*ctx->id, keys.rkey, ctx);
-                    if (ret) {
-                        perror("fi_read");
-                        break;
-                    }
 
-                    omp_set_lock(&ctx->lock);
-                    while (!ctx->ready){
-                        //wait
-                    }
-                    printf("debug: cq ctx not ready");
-                    ctx->ready = 0;
-                    omp_unset_lock(&ctx->lock);
-
-                    int temp;
-                    memcpy(&temp, msg_buff + msg_size*ctx->id, msg_size);
-                    printf("thread[%d] iter %d: fi_read: %d\n", ctx->id, i, temp++);
-                    printf("thread[%d] iter %d: fi_write: %d\n", ctx->id, i, temp);
-                    memcpy(msg_buff + msg_size*ctx->id, &temp, msg_size);
-                    ret = fi_write(ep, msg_buff + msg_size*ctx->id , msg_size, fi_mr_desc(mr),
-                                   0, keys.addr + msg_size*ctx->id, keys.rkey, ctx);
-                    if (ret) {
-                        perror("fi_read");
-                        break;
-                    }
-
-                    omp_set_lock(&ctx->lock);
-                    while (!ctx->ready){
-                        //wait
-                    }
-                    printf("debug: cq ctx not ready");
-                    ctx->ready = 0;
-                    omp_unset_lock(&ctx->lock);
+                ret = fi_read(ep, msg_buff + msg_size*ctx->id , msg_size, fi_mr_desc(mr),
+                              0, keys.addr + msg_size*ctx->id, keys.rkey, ctx);
+                if (ret) {
+                    perror("fi_read");
+                    break;
                 }
+
+                omp_set_lock(&ctx->lock);
+                while (!ctx->ready){
+                    //wait
+                }
+                printf("debug: cq ctx not ready");
+                ctx->ready = 0;
+                omp_unset_lock(&ctx->lock);
+
+                int temp;
+                memcpy(&temp, msg_buff + msg_size*ctx->id, msg_size);
+                printf("thread[%d] iter %d: fi_read: %d\n", ctx->id, i, temp++);
+                printf("thread[%d] iter %d: fi_write: %d\n", ctx->id, i, temp);
+                memcpy(msg_buff + msg_size*ctx->id, &temp, msg_size);
+                ret = fi_write(ep, msg_buff + msg_size*ctx->id , msg_size, fi_mr_desc(mr),
+                               0, keys.addr + msg_size*ctx->id, keys.rkey, ctx);
+                if (ret) {
+                    perror("fi_read");
+                    break;
+                }
+
+                omp_set_lock(&ctx->lock);
+                while (!ctx->ready){
+                    //wait
+                }
+                printf("debug: cq ctx not ready");
+                ctx->ready = 0;
+                omp_unset_lock(&ctx->lock);
+
                 omp_destroy_lock(&ctx->lock);
             }
     }
