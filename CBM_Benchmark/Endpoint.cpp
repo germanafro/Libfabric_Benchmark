@@ -83,7 +83,7 @@ int Endpoint::init(int thread)
         printf("[%d] error malloc msg\n", thread);
         return ret;
     }
-    void *ctrl_buff = malloc(config->ctrl_size);
+    void *ctrl_buff = malloc(config->ctrl_size *10);
     if (!ctrl_buff) {
         printf("[%d] error malloc ctrl\n", thread);
         return ret;
