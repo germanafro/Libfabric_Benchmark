@@ -6,7 +6,7 @@
 #include <rdma/fi_errno.h>
 #include <rdma/fi_rma.h>
 //Linux
-#include <pthread.h>
+#include <omp.h>
 //etc
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,9 +44,7 @@ struct keys {
     uint64_t addr;
 };
 struct ctx {
-    pthread_t thread;
-    pthread_mutex_t lock;
-    pthread_cond_t cond;
+    omp_lock_t lock;
     int ready;
     int count;
     int size;

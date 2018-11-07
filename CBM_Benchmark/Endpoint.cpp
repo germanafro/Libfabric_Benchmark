@@ -145,6 +145,7 @@ int Endpoint::client_thread(struct ctx * ctxx )
                 printf("[%d] debug %d\n", thread, k++);
                 ctxx[i].id = i;
                 struct ctx * ctx = &ctxx[i];
+                omp_init_lock(&ctx->lock);
 
 
                 run = 0;
@@ -177,12 +178,15 @@ int Endpoint::client_thread(struct ctx * ctxx )
                         break;
                     }
 
-                    pthread_mutex_lock(&ctx->lock);
-                    while (!ctx->ready)
-                        pthread_cond_wait(&ctx->cond, &ctx->lock);
+                    omp_set_lock(&ctx->lock);
+                    while (!ctx->ready){
+                        //wait
+                    }
+
                     ctx->ready = 0;
-                    pthread_mutex_unlock(&ctx->lock);
+                    omp_unset_lock(&ctx->lock);
                 }
+                omp_destroy_lock(&ctx->lock);
             }
     }
     return 0;
