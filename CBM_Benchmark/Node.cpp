@@ -18,8 +18,10 @@ Node::~Node()
 
 }
 
-int Node::init(int num_ep, int mode)
+int Node::init(int mode)
 {
+    int num_ep = config->num_ep;
+
     if (num_ep < 1){
         printf("invalid number of Endpoints: %d\n", num_ep);
     }

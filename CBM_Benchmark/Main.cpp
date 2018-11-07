@@ -13,7 +13,7 @@ Node * inode;
 int server()
 {
 	pnode = new Node(NULL, FI_SOURCE, config);
-	int ret = pnode->init(1, BM_SERVER);
+	int ret = pnode->init(BM_SERVER);
 	if (ret)
 		return ret;
 
@@ -27,7 +27,7 @@ int client(char *addr, int threads, int size, int count)
     //TODO pass params to config
 	inode = new Node(addr, 0, config);
 
-	int ret = inode->init(1, BM_CLIENT);
+	int ret = inode->init(BM_CLIENT);
 	if (ret)
 		return ret;
 
@@ -58,8 +58,9 @@ main(int argc, char *argv[])
 	printf("addr: %s\n", addr);
 	int threads = atoi(argv[2]);
 	printf("threads: %d\n", threads);
-	int size = atoi(argv[3]);
-	printf("size: %d\n", size);
+	int num_ep = atoi(argv[3]);
+	config->num_ep = num_ep;
+	printf("Endpoints: %d\n", num_ep);
 	int count = atoi(argv[4]);
 	printf("count: %d\n", count);
 

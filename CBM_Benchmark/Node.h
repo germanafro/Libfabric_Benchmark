@@ -10,7 +10,7 @@ public:
 	Node(const char *addr, uint64_t flags, Config * config);
 	~Node();
 
-	int init(int num_ep, int mode);
+	int init(int mode);
 
 	int run;
     const char * addr;

@@ -15,6 +15,7 @@ Config::Config()
     default_port = "6666"; // max len 10
     num_pn = 10;
     num_en = 10;
+    num_ep = 10;
     threads = 10;
     count = 10;
     max_packet_size = 1024;

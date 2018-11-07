@@ -21,6 +21,7 @@ public:
 	const char* default_port;
     int num_pn;
     int num_en;
+    int num_ep;
     int threads;
     int count;
     int max_packet_size;
