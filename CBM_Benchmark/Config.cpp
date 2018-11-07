@@ -10,16 +10,34 @@ const char * Config::console_spacer()
 
 Config::Config()
 {
-    //Node configs
+    //Default Node configs
 
     default_port = "6666"; // max len 10
     num_pn = 10;
-    num_en =10;
+    num_en = 10;
+    threads = 10;
+    count = 10;
+    max_packet_size = 1024;
 
 	buff_size = 32 * 1024 * 1024;
 	msg_size = sizeof(int)*num_pn*num_en;
 	ctrl_size = 32 * 1024 * 1024;
 
+	//Event queue config
+    eq_attr.size = 0;
+    eq_attr.flags = 0;
+    eq_attr.wait_obj = FI_WAIT_UNSPEC;
+    eq_attr.signaling_vector = 0;
+    eq_attr.wait_set = NULL;
+
+    //Completion queue config
+	cq_attr.size = 0;
+	cq_attr.flags = 0;
+	cq_attr.format = FI_CQ_FORMAT_MSG;
+	cq_attr.wait_obj = FI_WAIT_UNSPEC;
+	cq_attr.signaling_vector = 0;
+	cq_attr.wait_cond = FI_CQ_COND_NONE;
+	cq_attr.wait_set = NULL;
 
 
 	hints = fi_allocinfo();

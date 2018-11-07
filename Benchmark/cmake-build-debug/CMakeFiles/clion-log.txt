@@ -1,4 +1,1 @@
-/snap/clion/44/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/andreas/Libfabric_Benchmark/Benchmark
--- Configuring done
--- Generating done
--- Build files have been written to: /home/andreas/Libfabric_Benchmark/Benchmark/cmake-build-debug
+CMakeLists.txt not found in /home/andreas/Libfabric_Benchmark/Benchmark Select CMakeLists.txt file...

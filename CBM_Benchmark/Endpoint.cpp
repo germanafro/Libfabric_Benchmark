@@ -1,144 +1,408 @@
 #include "Endpoint.h"
-#include "Config.h"
+#include <omp.h>
 using namespace std;
-/* supportet flags are: FI_RECV, FI_TRANSMIT */
-Endpoint::Endpoint(Domain * domain, uint64_t flag)
+/*
+ *
+ * TODO Docstring
+ */
+Endpoint::Endpoint(const char * addr, char * port,  uint64_t flags, Config * config)
 {
-	setDomain(domain);
-	flags = flag;
+    this->addr = addr;
+    this->port = port;
+    this->flags = flags;
+    this->config = config;
+
+    ctx = (struct ctx *)calloc(config->threads, sizeof(*ctx));
+    if (!ctx) {
+        perror("calloc");
+    }
+
+    int i;
+    for (i = 0; i < config->threads; i++) {
+        pthread_mutex_init(&ctx[i].lock, NULL);
+        pthread_cond_init(&ctx[i].cond, NULL);
+        ctx[i].count = config->count;
+        ctx[i].size = config->max_packet_size;
+    }
 }
 
 Endpoint::~Endpoint()
 {
-	/*fid * fid;
-	if (ep) {
-		fid = &(ep->fid);
-		fi_cancel(fid, 0); // TODO context
-		fi_close(fid);
-	}
-	if (sep) {
-		fid = &(sep->fid);
-		fi_cancel(fid, 0); // TODO context
-		fi_close(fid);
-	}
-	//CQ
-	if (&rx_cq) fi_close(&(&rx_cq)->fid);
-	if (&tx_cq) fi_close(&(&tx_cq)->fid);
-
-	//AV
-
-	if (&rx_av) fi_close(&(&rx_av)->fid);
-
-	if (&tx_av) fi_close(&(&tx_av)->fid);
-	*/
+    fi_shutdown(ep, 0);
+    fi_close(&ep->fid);
+    fi_close(&mr->fid);
+    fi_close(&cq->fid);
+    fi_close(&eq->fid);
+    fi_close(&domain->fid);
+    fi_close(&fabric->fid);
+    fi_freeinfo(fi);
+    //free(msg_buff); // TODO is this necessary or will fi_close(mr) free this resource?
+    free(ctrl_buff);
 }
 
-int Endpoint::initEP( void * context)
+int Endpoint::init(int thread)
 {
-	int ret;
-	fid_cq * cq_temp;
-	fid_av * av_temp;
+    int ret;
+    struct fi_eq_attr eq_attr = config->eq_attr;
+    struct fi_cq_attr cq_attr = config->cq_attr;
 
-	fi_info * info = domain->getInfo();
-	fid_domain * accDomain = domain->getAccDomain();
+    ret= fi_getinfo(FIVER, addr, port, flags, config->hints, &fi);
+    if (ret) {
+        printf("[%d] fi_getinfo: %s\n", thread, fi_strerror(ret));
+        return ret;
+    }
 
-	//configuration TODO: move to configs class
-	// Completion Queue
-	tx_cq_attr.wait_obj = FI_WAIT_NONE; // non blocking
-	tx_cq_attr.format = FI_CQ_FORMAT_CONTEXT; // completion provides context only
-	rx_cq_attr.size = info->rx_attr->size; // make sure CQ is the same size as rx_context
-	tx_cq_attr.size = info->tx_attr->size; // make sure CQ is the same size as tx_context
-	
-	// Adress Vector
-	av_attr.type = info->domain_attr->av_type;
-	av_attr.count = 1; // TODO: what is this?!
+    ret = fi_fabric(fi->fabric_attr, &fabric, NULL);
+    if (ret) {
+        printf("[%d] fi_fabric: %s\n", thread, fi_strerror(ret));
+        return ret;
+    }
+    printf("[%d] fi_getinfo: %s %s\n", thread, fi->fabric_attr->prov_name, fi->fabric_attr->name);
 
-	// CQ
-	ret = fi_cq_open(accDomain, &rx_cq_attr, &rx_cq, NULL);
-	cout << "rx cq: " << fi_strerror(ret) << ", ";
-	ret = fi_cq_open(accDomain, &tx_cq_attr, &tx_cq, NULL);
-	cout << "tx cq: " << fi_strerror(ret) << "\n";
 
-	// AV TODO: apparently one adress vector is enough
-	ret = fi_av_open(accDomain, &av_attr, &av, NULL);
-	cout << "av: " << fi_strerror(ret) << "\n";
+    ret = fi_eq_open(fabric, &eq_attr, &eq, NULL);
+    if (ret) {
+        printf("[%d] fi_eq_open: %s\n", thread, fi_strerror(ret));
+        return ret;
+    }
 
-	// EP
-	ret = fi_endpoint(domain->getAccDomain(), domain->getInfo(), &ep, context);
-	cout << "ep: " << fi_strerror(ret) << ", ";
-	ret = bind();
-	cout << "bind: " << fi_strerror(ret) << "\n";
-	ret = fi_enable(ep);
-	//ret = fi_accept();
-	return ret;
+    ret = fi_domain(fabric, fi, &domain, NULL);
+    if (ret) {
+        printf("[%d] fi_domain: %s\n", thread, fi_strerror(ret));
+        return ret;
+    }
+
+    ret = fi_cq_open(domain, &cq_attr, &cq, NULL);
+    if (ret) {
+        printf("[%d] fi_cq_open: %s\n", thread, fi_strerror(ret));
+        return ret;
+    }
+
+    void *msg_buff = (int *) malloc(config->msg_size);
+    if (!msg_buff) {
+        printf("[%d] error malloc msg\n", thread);
+        return ret;
+    }
+    void *ctrl_buff = malloc(config->ctrl_size);
+    if (!ctrl_buff) {
+        printf("[%d] error malloc ctrl\n", thread);
+        return ret;
+    }
+
+    ret = fi_mr_reg(domain, msg_buff, config->buff_size,
+                    FI_REMOTE_READ | FI_REMOTE_WRITE | FI_SEND | FI_RECV,
+                    0, 0, 0, &mr, NULL);
+    if (ret) {
+        printf("[%d] fi_mr_reg: %s\n", thread, fi_strerror(ret));
+        return ret;
+    }
+	return 0;
 }
 
-int Endpoint::initSEP(void * context)
+int Endpoint::cq_thread()
 {
-	int ret;
-	ret = fi_scalable_ep(domain->getAccDomain(), domain->getInfo(), &sep, context);
-	return ret;
+    struct fi_cq_msg_entry comp;
+    ssize_t ret;
+    struct fi_cq_err_entry err;
+    const char *err_str;
+    struct fi_eq_entry eq_entry;
+    uint32_t event;
+
+    while (run) {
+        ret = fi_cq_sread(cq, &comp, 1, NULL, 1000);
+        if (!run)
+            break;
+        if (ret == -FI_EAGAIN)
+            continue;
+
+        if (ret != 1) {
+            perror("fi_cq_sread");
+            break;
+        }
+
+        if (comp.flags & (FI_READ|FI_WRITE)) {
+            struct ctx *ctx = (struct ctx*)comp.op_context;
+            pthread_mutex_lock(&ctx->lock);
+            ctx->ready = 1;
+            pthread_cond_signal(&ctx->cond);
+            pthread_mutex_unlock(&ctx->lock);
+        }
+    }
+
+    return 0;
 }
 
-int Endpoint::bindRx() {
-	int ret;
-	ret = fi_ep_bind(ep, &av->fid, 0);
-	if (ret < 0) return ret;
-	ret = fi_ep_bind(ep, &rx_cq->fid, FI_RECV);
-	return ret;
-}
-
-int Endpoint::bindTx() {
-	int ret;
-	//ret = fi_ep_bind(ep, &tx_av->fid, 0);
-	//if (ret < 0) return ret;
-	ret = fi_ep_bind(ep, &tx_cq->fid, FI_TRANSMIT);
-	return ret;
-}
-
-int Endpoint::bind() {
-	int ret = 0;
-	ret = fi_ep_bind(ep, &av->fid, 0);
-	if (ret < 0) return ret;
-	switch(flags) {
-	case FI_RECV:
-		ret = fi_ep_bind(ep, &rx_cq->fid, FI_RECV);
-		break;
-	case FI_TRANSMIT:
-		ret = fi_ep_bind(ep, &tx_cq->fid, FI_TRANSMIT);
-		break;
-	default:
-		cout << "flag not set! context unclear - binding both transmit and recv";
-		ret = fi_ep_bind(ep, &rx_cq->fid, FI_RECV);
-		if (ret < 0) return ret;
-		ret = fi_ep_bind(ep, &tx_cq->fid, FI_TRANSMIT);
-		break;
-
-	}
-	return ret;
-}
-
-int Endpoint::pair() {
-	/*size_t addrlen = MAX_CTRL_MSG_SIZE;
-	fi_av_insert(rx_av, domain->getInfo()->dest_addr, 1, &remote_addr, 0, NULL);
-	//fi_getname(&ep->fid, tx_ep_buf, &addrlen);
-	*/
-}
-
-ssize_t Endpoint::recv()
+int Endpoint::client_thread(struct ctx * ctxx )
 {
-	ssize_t ret;
-	//TODO check if FI_RECV is bound
-	ret = fi_recv(ep, rx_ep_buf, domain->getInfo()->ep_attr->max_msg_size, 0, 0, NULL);
-	return ret;
+#pragma omp parallel
+    {
+     #pragma omp for
+        for (int i = 0; i < config->threads; i++)
+            {
+                ctxx[i].id = i;
+                struct ctx * ctx = &ctxx[i];
+
+
+                run = 0;
+                int i;
+                ssize_t ret;
+                size_t msg_size = sizeof(int);//ctx->size; //TODO determine datatype
+                for (i = 0; i < ctx->count; i++) {
+                    ret = fi_read(ep, msg_buff + msg_size*ctx->id , msg_size, fi_mr_desc(mr),
+                                  0, keys.addr + msg_size*ctx->id, keys.rkey, ctx);
+                    if (ret) {
+                        perror("fi_read");
+                        break;
+                    }
+
+                    pthread_mutex_lock(&ctx->lock);
+                    while (!ctx->ready)
+                        pthread_cond_wait(&ctx->cond, &ctx->lock);
+                    ctx->ready = 0;
+                    pthread_mutex_unlock(&ctx->lock);
+
+                    int temp;
+                    memcpy(&temp, msg_buff + msg_size*ctx->id, msg_size);
+                    printf("thread[%d] iter %d: fi_read: %d\n", ctx->id, i, temp++);
+                    printf("thread[%d] iter %d: fi_write: %d\n", ctx->id, i, temp);
+                    memcpy(msg_buff + msg_size*ctx->id, &temp, msg_size);
+                    ret = fi_write(ep, msg_buff + msg_size*ctx->id , msg_size, fi_mr_desc(mr),
+                                   0, keys.addr + msg_size*ctx->id, keys.rkey, ctx);
+                    if (ret) {
+                        perror("fi_read");
+                        break;
+                    }
+
+                    pthread_mutex_lock(&ctx->lock);
+                    while (!ctx->ready)
+                        pthread_cond_wait(&ctx->cond, &ctx->lock);
+                    ctx->ready = 0;
+                    pthread_mutex_unlock(&ctx->lock);
+                }
+            }
+    }
+    return 0;
 }
 
-ssize_t Endpoint::send()
+int Endpoint::client(int thread)
 {
-	//TODO check if FI_TRANSMIT is bound
-	/*ssize_t ret = 0;
-	ret = fi_send(ep, tx_ep_buf, addrlen, 0, remote_addr, NULL);
-	return ret;*/
+    int ret;
+
+    ret = fi_endpoint(domain, fi, &ep, NULL);
+    if (ret) {
+        perror("fi_endpoint");
+        return ret;
+    }
+
+    ret = fi_ep_bind(ep, &eq->fid, 0);
+    if (ret) {
+        perror("fi_ep_bind(eq)");
+        return ret;
+    }
+
+    ret = fi_ep_bind(ep, &cq->fid, FI_TRANSMIT | FI_RECV);
+    if (ret) {
+        perror("fi_ep_bind(cq)");
+        return ret;
+    }
+
+    ret = fi_enable(ep);
+    if (ret) {
+        perror("fi_enable");
+        return ret;
+    }
+
+    ssize_t rret;
+    rret = fi_recv(ep, ctrl_buff, sizeof(keys), fi_mr_desc(mr), 0, NULL);
+    if (rret) {
+        perror("fi_recv");
+        return (int)rret;
+    }
+
+
+    ret = fi_connect(ep, fi->dest_addr, NULL, 0);
+    if (ret) {
+        perror("fi_connect");
+        return ret;
+    }
+
+    struct fi_eq_cm_entry entry;
+    uint32_t event;
+
+    rret = fi_eq_sread(eq, &event, &entry, sizeof(entry), -1, 0);
+    if (rret > 0){
+        if (event != FI_CONNECTED) {
+            fprintf(stderr, "invalid event %u\n", event);
+            return -1;
+        }
+    }
+    else if (rret != -FI_EAGAIN) {
+        struct fi_eq_err_entry err_entry;
+        fi_eq_readerr(eq, &err_entry, 0);
+        printf("%s %s \n", fi_strerror(err_entry.err), fi_eq_strerror(eq, err_entry.prov_errno, err_entry.err_data, NULL, 0));
+        return ret;
+    }
+
+
+
+    struct fi_cq_msg_entry comp;
+    ret = fi_cq_sread(cq, &comp, 1, NULL, -1);
+    if (ret != 1) {
+        perror("fi_cq_sread");
+        return ret;
+    }
+
+    memcpy(&keys, ctrl_buff, sizeof(keys));
+    printf("connected\n");
+    run = 1;
+    #pragma omp sections
+    {
+        #pragma omp section
+        {
+            cq_thread();
+        }
+        #pragma omp section
+        {
+           client_thread(ctx);
+         }
+
+    };
+    return 0;
+}
+
+int Endpoint::server(int thread)
+{
+    int ret;
+
+    keys.addr = (uint64_t) msg_buff;
+    keys.rkey = fi_mr_key(mr);
+
+    ret = fi_passive_ep(fabric, fi, &pep, NULL);
+    if (ret) {
+        printf("[%d]fi_passive_ep: %s\n", thread, fi_strerror(ret));
+        return ret;
+    }
+
+    ret = fi_pep_bind(pep, &eq->fid, 0);
+    if (ret) {
+        printf("[%d]fi_pep_bind(eq): %s\n", thread, fi_strerror(ret));
+        return ret;
+    }
+
+    ret = fi_listen(pep);
+    if (ret) {
+        printf("[%d]fi_listen: %s\n", thread, fi_strerror(ret));
+        return ret;
+    }
+    size_t buff_Size = config->buff_size;
+    struct fi_eq_cm_entry entry;
+    uint32_t event;
+    ssize_t rret;
+
+    while (1) {
+
+        printf("[%d]listening\n", thread);
+
+        rret = fi_eq_sread(eq, &event, &entry, sizeof(entry), -1, 0);
+        if (rret > 0) {
+            if (event != FI_CONNREQ) {
+                printf("invalid event %u\n", event);
+                return (int) rret;
+            }
+        } else if (rret != -FI_EAGAIN) {
+            struct fi_eq_err_entry err_entry;
+            fi_eq_readerr(eq, &err_entry, 0);
+            printf("%s %s \n", fi_strerror(err_entry.err),
+                   fi_eq_strerror(eq, err_entry.prov_errno, err_entry.err_data, NULL, 0));
+            return (int) rret;
+        }
+
+        printf("[%d]connection request: %s\n", thread, entry.info->fabric_attr->name);
+
+        ret = fi_endpoint(domain, entry.info, &ep, NULL);
+        if (ret) {
+            perror("fi_endpoint");
+            return ret;
+        }
+
+        ret = fi_ep_bind(ep, &eq->fid, 0);
+        if (ret) {
+            perror("fi_ep_bind(eq)");
+            return ret;
+        }
+
+        ret = fi_ep_bind(ep, &cq->fid, FI_TRANSMIT | FI_RECV);
+        if (ret) {
+            perror("fi_ep_bind(cq)");
+            return ret;
+        }
+
+        /*ret = fi_enable(ep);
+        if (ret) {
+            perror("fi_enable");
+            return ret;
+        }*/
+
+        ret = fi_accept(ep, NULL, 0);
+        if (ret) {
+            perror("fi_accept");
+            return ret;
+        }
+
+        rret = fi_eq_sread(eq, &event, &entry, sizeof(entry), -1, 0);
+        if (rret > 0) {
+            if (event != FI_CONNECTED) {
+                fprintf(stderr, "invalid event %u\n", event);
+                return (int) rret;
+            }
+        } else if (rret != -FI_EAGAIN) {
+            struct fi_eq_err_entry err_entry;
+            fi_eq_readerr(eq, &err_entry, 0);
+            printf("%s %s \n", fi_strerror(err_entry.err),
+                   fi_eq_strerror(eq, err_entry.prov_errno, err_entry.err_data, NULL, 0));
+            return (int) rret;
+        }
+
+        memcpy(ctrl_buff, &keys, sizeof(keys));
+
+        int temp[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+        memcpy(msg_buff, &temp, sizeof(int) * 10);
+
+
+        rret = fi_send(ep, ctrl_buff, sizeof(keys), fi_mr_desc(mr), 0, NULL);
+        if (rret) {
+            printf("fi_send: %s\n", fi_strerror((int) rret));
+            return (int) rret;
+        }
+
+        struct fi_cq_msg_entry comp;
+        ret = fi_cq_sread(cq, &comp, 1, NULL, -1);
+        if (ret < 1) {
+            perror("fi_cq_sread");
+            return ret;
+        }
+
+        printf("[%d]connected\n", thread);
+
+        rret = fi_eq_sread(eq, &event, &entry, sizeof(entry), -1, 0);
+        if (rret != sizeof(entry)) {
+            perror("fi_eq_sread");
+            return (int) rret;
+        }
+
+        if (event != FI_SHUTDOWN) {
+            fprintf(stderr, "invalid event %u\n", event);
+            return (int) rret;
+        }
+        memcpy(&temp, msg_buff, sizeof(int) * 10);
+        printf("[%d] batch received:\n", thread);
+        for (int i = 0; i < 10; i++) {
+            printf("%d\n", temp[i]);
+        }
+
+        fi_close(&ep->fid);
+    }
+    return ret;
 }
 
 int Endpoint::waitComp(struct fid_cq * cq)
@@ -158,33 +422,3 @@ int Endpoint::waitComp(struct fid_cq * cq)
 	}
 }
 
-//get - set
-Domain * Endpoint::getDomain()
-{
-	return domain;
-}
-
-void Endpoint::setDomain(Domain * dom)
-{
-	domain = dom;
-}
-
-fid_ep * Endpoint::getEP()
-{
-	return ep;
-}
-
-void Endpoint::setEP(fid_ep * ep)
-{
-	this->ep = ep;
-}
-
-fid_ep * Endpoint::getSEP()
-{
-	return sep;
-}
-
-void Endpoint::setSEP(fid_ep * sep)
-{
-	this->sep = sep;
-}

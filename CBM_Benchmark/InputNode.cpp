@@ -33,7 +33,7 @@ InputNode::~InputNode()
 }
 
 
-int InputNode::initClient(void * cq_thread(void* arg))
+int InputNode::client(void * cq_thread(void* arg))
 {
 	int ret;
 

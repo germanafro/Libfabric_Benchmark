@@ -65,7 +65,7 @@ int ProcessingNode::initServer()
 			rret = fi_eq_sread(eq, &event, &entry, sizeof(entry), -1, 0);
 			if (rret > 0) {
 				if (event != FI_CONNREQ) {
-					fprintf(stderr, "invalid event %u\n", event);
+					printf("invalid event %u\n", event);
 					ret = (int) rret;
 					break;
 				}
@@ -78,7 +78,7 @@ int ProcessingNode::initServer()
 				break;
 			}
 
-			printf("[%d]connection request: %s\n", n, entry.info->fabric_attr->name);
+			printf("[%d]connection request: %s\n", thread, entry.info->fabric_attr->name);
 
 			ret = fi_endpoint(domain, entry.info, &ep, NULL);
 			if (ret) {

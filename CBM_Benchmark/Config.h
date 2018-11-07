@@ -12,20 +12,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct keys {
-	uint64_t rkey;
-	uint64_t addr;
-};
-struct ctx {
-	pthread_t thread;
-	pthread_mutex_t lock;
-	pthread_cond_t cond;
-	int ready;
-	int count;
-	int size;
-	int id;
-};
-
 class Config
 {
 public:
@@ -35,15 +21,42 @@ public:
 	const char* default_port;
     int num_pn;
     int num_en;
+    int threads;
+    int count;
+    int max_packet_size;
+
 	size_t buff_size;
     size_t ctrl_size;
     size_t msg_size;
+    struct fi_eq_attr eq_attr;
+    struct fi_cq_attr cq_attr;
 	struct fi_opt * option;
 	struct fi_info * hints;
 	//console art
 	static const char * console_spacer();
 private:
 
+};
+
+struct keys {
+    uint64_t rkey;
+    uint64_t addr;
+};
+struct ctx {
+    pthread_t thread;
+    pthread_mutex_t lock;
+    pthread_cond_t cond;
+    int ready;
+    int count;
+    int size;
+    int id;
+};
+
+#define BM_OFFSET	0
+enum {
+    BM_SERVER   = BM_OFFSET, /* ServerMode Tag for Node*/
+    BM_CLIENT   = 1, /* ClientMode Tag for Node*/
+    BM_MAX
 };
 
 #define FIVER FI_VERSION(1, 6)
