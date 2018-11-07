@@ -32,7 +32,10 @@ int Node::init(int num_ep, int mode)
     omp_set_num_threads(num_ep);
     omp_set_nested(1);
     int int_port = atoi(config->default_port);
+    char *port = new char(10);
     for(int i = 0; i<num_ep; i++){
+        sprintf(port,"%d",int_port+i);
+        printf("[%d] pushing Endpoint | addr: %s, port: %s\n", i, addr, port);
         eps.push_back(new Endpoint(addr, port, flags, config)); // TODO verbs provider addressing?
     }
 #pragma omp parallel
@@ -41,8 +44,6 @@ int Node::init(int num_ep, int mode)
         for (int n=0; n<num_ep; n++) {
             int ret;
             int thread = omp_get_thread_num();
-            char *port = new char(10);
-            sprintf(port,"%d",int_port+thread);
             printf("[%d] initializing Endpoint | addr: %s, port: %s\n", thread, addr, port);
             ret = eps[thread]->init(thread);
             printf("[%d] ep.init(): %s\n", thread, fi_strerror(ret));

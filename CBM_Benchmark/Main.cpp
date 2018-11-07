@@ -24,6 +24,7 @@ int server()
 
 int client(char *addr, int threads, int size, int count) 
 {
+    //TODO pass params to config
 	inode = new Node(addr, 0, config);
 
 	int ret = inode->init(1, BM_CLIENT);
@@ -32,16 +33,6 @@ int client(char *addr, int threads, int size, int count)
 
 
 	return 0;
-
-	//maybe? maybe not? currently this is done in destructor of node.
-	/*fi_shutdown(inode->ep, 0);
-	fi_close(&inode->ep->fid);
-	fi_close(&inode->mr->fid);
-	fi_close(&inode->cq->fid);
-	fi_close(&inode->eq->fid);
-	fi_close(&inode->domain->fid);
-	fi_close(&inode->fabric->fid);
-	fi_freeinfo(inode->fi);*/
 }
 
 int
