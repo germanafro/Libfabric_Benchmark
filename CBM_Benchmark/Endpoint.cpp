@@ -160,11 +160,12 @@ int Endpoint::client_thread(struct ctx * ctxx )
                         break;
                     }
 
-                    pthread_mutex_lock(&ctx->lock);
-                    while (!ctx->ready)
-                        pthread_cond_wait(&ctx->cond, &ctx->lock);
+                    omp_set_lock(&ctx->lock);
+                    while (!ctx->ready){
+                        //wait
+                    }
                     ctx->ready = 0;
-                    pthread_mutex_unlock(&ctx->lock);
+                    omp_unset_lock(&ctx->lock);
 
                     int temp;
                     memcpy(&temp, msg_buff + msg_size*ctx->id, msg_size);
@@ -182,7 +183,6 @@ int Endpoint::client_thread(struct ctx * ctxx )
                     while (!ctx->ready){
                         //wait
                     }
-
                     ctx->ready = 0;
                     omp_unset_lock(&ctx->lock);
                 }
