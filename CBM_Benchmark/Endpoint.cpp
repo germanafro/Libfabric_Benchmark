@@ -158,11 +158,11 @@ int Endpoint::client_thread(struct ctx * ctxx )
                     printf("[%d] fi_read: %s", thread, fi_strerror(ret) );
                 }
 
-                omp_set_lock(&ctx->lock);
                 while (!ctx->ready){
                     //wait
                 }
                 printf("debug: cq ctx not ready");
+                omp_set_lock(&ctx->lock);
                 ctx->ready = 0;
                 omp_unset_lock(&ctx->lock);
 
@@ -177,11 +177,11 @@ int Endpoint::client_thread(struct ctx * ctxx )
                     printf("[%d] fi_write: %s", thread, fi_strerror(ret) );
                 }
 
-                omp_set_lock(&ctx->lock);
                 while (!ctx->ready){
                     //wait
                 }
                 printf("debug: cq ctx not ready");
+                omp_set_lock(&ctx->lock);
                 ctx->ready = 0;
                 omp_unset_lock(&ctx->lock);
 
