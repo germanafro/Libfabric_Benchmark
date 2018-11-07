@@ -78,12 +78,12 @@ int Endpoint::init(int thread)
         return ret;
     }
 
-    void *msg_buff = (int *) malloc(config->msg_size);
+    msg_buff = (int *) malloc(config->msg_size);
     if (!msg_buff) {
         printf("[%d] error malloc msg\n", thread);
         return ret;
     }
-    void *ctrl_buff = malloc(config->ctrl_size *10);
+    ctrl_buff = malloc(config->ctrl_size *10);
     if (!ctrl_buff) {
         printf("[%d] error malloc ctrl\n", thread);
         return ret;
@@ -365,7 +365,7 @@ int Endpoint::server(int thread)
         }
 
         printf("[%d] debug %d\n", thread, k++);
-        printf ("%d %d\n", sizeof(ctrl_buff), sizeof(&keys));
+        printf ("%d %d\n", sizeof(ctrl_buff), sizeof(keys));
         memcpy(ctrl_buff, &keys, sizeof(keys));
         printf("[%d] debug %d\n", thread, k++);
         int temp[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
