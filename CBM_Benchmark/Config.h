@@ -32,6 +32,9 @@ public:
 	Config();
 	~Config();
 
+	const char* default_port;
+    int num_pn;
+    int num_en;
 	size_t buff_size;
     size_t ctrl_size;
     size_t msg_size;
@@ -46,14 +49,14 @@ private:
 #define FIVER FI_VERSION(1, 6)
 
 //
-#define DEFAULT_WORKER_SIZE 10;
-#define DEFAULT_ENTRY_NODE_SIZE 10;
+#define DEFAULT_PROCESSING_NODE_SIZE 10
+#define DEFAULT_ENTRY_NODE_SIZE 10
 
 // message sizing
-#define MTU_LEN (4096); // 256 ~ 4096B
+#define MTU_LEN (4096) // 256 ~ 4096B
 //#define MIN_MSG_LEN = MTU_LEN;
-#define MAX_MSG_LEN 2147483648; // 2GB
-#define MAX_CTRL_MSG_SIZE 2147483; // FIXME
+#define MAX_MSG_LEN 2147483648 // 2GB
+#define MAX_CTRL_MSG_SIZE 2147483// FIXME
 
 
 

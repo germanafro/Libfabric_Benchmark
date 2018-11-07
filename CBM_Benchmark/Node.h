@@ -9,8 +9,9 @@ public:
 	~Node();
 	int init();
 
-	const char * addr; 
-	uint64_t flags; 
+	const char * addr;
+    const char * port;
+    uint64_t flags;
 	Config * config;
 	void * msg_buff;
     void * ctrl_buff;

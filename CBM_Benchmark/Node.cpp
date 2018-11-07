@@ -5,6 +5,7 @@
 Node::Node(const char *addr, uint64_t flags, Config * config)
 {
 	this->addr = addr;
+	this->port = config->default_port;
 	this->flags = flags;
 	this->config = config;
 }
@@ -39,7 +40,7 @@ int Node::init()
         return -1;
     }
 
-	ret = fi_getinfo(FIVER, addr, "1234", flags, config->hints, &fi);
+	ret = fi_getinfo(FIVER, addr, port, flags, config->hints, &fi);
 	if (ret) {
 		perror("fi_getinfo");
 		return ret;

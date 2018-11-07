@@ -10,9 +10,17 @@ const char * Config::console_spacer()
 
 Config::Config()
 {
+    //Node configs
+
+    default_port = "6666"; // max len 10
+    num_pn = 10;
+    num_en =10;
+
 	buff_size = 32 * 1024 * 1024;
-	msg_size = sizeof(int)*10;
+	msg_size = sizeof(int)*num_pn*num_en;
 	ctrl_size = 32 * 1024 * 1024;
+
+
 
 	hints = fi_allocinfo();
 	if (!hints) {
