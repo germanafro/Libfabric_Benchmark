@@ -187,6 +187,7 @@ int Endpoint::client_thread(struct ctx * ctxx )
 int Endpoint::client(int thread)
 {
     int ret;
+    int k = 0;
 
     ret = fi_endpoint(domain, fi, &ep, NULL);
     if (ret) {
@@ -253,16 +254,20 @@ int Endpoint::client(int thread)
     }
 
     memcpy(&keys, ctrl_buff, sizeof(keys));
-    printf("connected\n");
+    printf("[%d] connected\n", thread);
     run = 1;
+    printf("[%d] debug %d\n", thread, k++);
     #pragma omp sections
     {
+        printf("[%d] debug %d\n", thread, k++);
         #pragma omp section
         {
+            printf("[%d] debug %d\n", thread, k++);
             cq_thread();
         }
         #pragma omp section
         {
+            printf("[%d] debug %d\n", thread, k++);
            client_thread(ctx);
          }
 
