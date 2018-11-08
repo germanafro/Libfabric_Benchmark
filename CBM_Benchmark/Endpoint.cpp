@@ -111,7 +111,6 @@ int Endpoint::cq_thread()
     while (run) {
         ret = fi_cq_sread(cq, &comp, 1, NULL, 1000);
         if (!run){
-            printf("debug: cq breaking\n");
             break;
         }
         if (ret == -FI_EAGAIN)
@@ -124,13 +123,11 @@ int Endpoint::cq_thread()
 
         if (comp.flags & (FI_READ|FI_WRITE)) {
             struct ctx *ctx = (struct ctx*)comp.op_context;
-            printf("debug: cq ctx ready\n");
             omp_set_lock(&ctx->lock);
             ctx->ready = 1;
             omp_unset_lock(&ctx->lock);
         }
     }
-    printf("debug: cq done\n");
     return 0;
 }
 
@@ -145,7 +142,6 @@ int Endpoint::client_thread(struct ctx * ctxx )
             {
                 int thread = omp_get_thread_num();
                 for (int j=0; j<ctx->count; j++) {
-                    printf("[%d] debug %d\n", thread, k++);
                     ctxx[i].id = i;
                     struct ctx *ctx = &ctxx[thread];
 
@@ -161,15 +157,14 @@ int Endpoint::client_thread(struct ctx * ctxx )
                     while (!ctx->ready) {
                         //wait
                     }
-                    printf("debug: cq ctx not ready\n");
                     omp_set_lock(&ctx->lock);
                     ctx->ready = 0;
                     omp_unset_lock(&ctx->lock);
 
                     int temp;
                     memcpy(&temp, msg_buff + msg_size * ctx->id, msg_size);
-                    printf("thread[%d] iter %d: fi_read: %d\n", ctx->id, j, temp++);
-                    printf("thread[%d] iter %d: fi_write: %d\n", ctx->id, j, temp);
+                    //printf("thread[%d] iter %d: fi_read: %d\n", ctx->id, j, temp++);
+                    //printf("thread[%d] iter %d: fi_write: %d\n", ctx->id, j, temp);
                     memcpy(msg_buff + msg_size * ctx->id, &temp, msg_size);
                     ret = fi_write(ep, msg_buff + msg_size * ctx->id, msg_size, fi_mr_desc(mr),
                                    0, keys.addr + msg_size * ctx->id, keys.rkey, ctx);
@@ -180,7 +175,6 @@ int Endpoint::client_thread(struct ctx * ctxx )
                     while (!ctx->ready) {
                         //wait
                     }
-                    printf("debug: cq ctx not ready\n");
                     omp_set_lock(&ctx->lock);
                     ctx->ready = 0;
                     omp_unset_lock(&ctx->lock);
@@ -265,19 +259,16 @@ int Endpoint::client(int thread)
     memcpy(&keys, ctrl_buff, sizeof(keys));
     printf("[%d] connected\n", thread);
     run = 1;
-    printf("[%d] debug %d\n", thread, k++);
 #pragma omp parallel num_threads(2)
     {
 #pragma omp sections
         {
 #pragma omp section
             {
-                printf("[%d] debug %d\n", thread, k++);
                 cq_thread();
             }
 #pragma omp section
             {
-                printf("[%d] debug %d\n", thread, k++);
                 client_thread(ctx);
                 run = 0;
             }
