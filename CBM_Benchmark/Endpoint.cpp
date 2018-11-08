@@ -143,7 +143,7 @@ int Endpoint::client_thread(struct ctx * ctxx )
                 int thread = omp_get_thread_num();
                 for (int j=0; j<ctx->count; j++) {
                     ctxx[i].id = i;
-                    struct ctx *ctx = &ctxx[i];
+                    struct ctx *ctx = &ctxx[thread];
 
                     ssize_t ret;
                     size_t msg_size = sizeof(int);//ctx->size; //TODO determine datatype
@@ -163,7 +163,8 @@ int Endpoint::client_thread(struct ctx * ctxx )
 
                     int temp;
                     memcpy(&temp, msg_buff + msg_size * ctx->id, msg_size);
-                    //printf("thread[%d] iter %d: fi_read: %d\n", ctx->id, j, temp++);
+                    //printf("thread[%d] iter %d: fi_read: %d\n", ctx->id, j, temp);
+                    temp++;
                     //printf("thread[%d] iter %d: fi_write: %d\n", ctx->id, j, temp);
                     memcpy(msg_buff + msg_size * ctx->id, &temp, msg_size);
                     ret = fi_write(ep, msg_buff + msg_size * ctx->id, msg_size, fi_mr_desc(mr),
