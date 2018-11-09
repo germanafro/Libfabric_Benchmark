@@ -18,7 +18,9 @@ public:
 	Config();
 	~Config();
 
-	const char* default_port;
+	char * addr;
+	char * port;
+
     int num_pn;
     int num_en;
     int num_ep;

@@ -22,7 +22,7 @@ int server()
 	return 0;
 }
 
-int client(char *addr, int threads, int size, int count) 
+int client(char *addr) 
 {
     //TODO pass params to config
 	inode = new Node(addr, 0, config);
@@ -46,7 +46,7 @@ main(int argc, char *argv[])
 
 	if (argc != 5) {
 		fprintf(stderr, "arguments given: %d\n", argc);
-		fprintf(stderr, "usage: %s addr threads size count rkey addr\n", argv[0]);
+		fprintf(stderr, "usage: %s addr threads num_ep count\n", argv[0]);
 		return -1;
 	}
 
@@ -55,14 +55,25 @@ main(int argc, char *argv[])
 	if (addr == NULL){
 	    return -1;
 	}
-	printf("addr: %s\n", addr);
+	else {
+		config->addr = addr;
+	}
+	printf("addr: %s\n", config->addr);
 	int threads = atoi(argv[2]);
+	if (threads > 0) {
+		config->threads = threads;
+	}
 	printf("threads: %d\n", threads);
 	int num_ep = atoi(argv[3]);
-	config->num_ep = num_ep;
-	printf("Endpoints: %d\n", num_ep);
+	if (num_ep > 0) {
+		config->num_ep = num_ep;
+	}
+	printf("Endpoints: %d\n", config->num_ep);
 	int count = atoi(argv[4]);
-	printf("count: %d\n", count);
+	if (count> 0) {
+		config->count = count;
+	}
+	printf("count: %d\n", config->count);
 
-	return client(addr, threads, num_ep, count);
+	return client(addr);
 }

@@ -32,7 +32,7 @@ int Node::init(int mode)
     //omp_set_dynamic(0);
     omp_set_num_threads(num_ep);
     omp_set_nested(1);
-    int int_port = atoi(config->default_port);
+    int int_port = atoi(config->port);
     for(int i = 0; i<num_ep; i++){
         char *port = new char(10);
         sprintf(port,"%d",int_port+i);
