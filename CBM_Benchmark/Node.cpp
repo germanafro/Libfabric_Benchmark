@@ -25,11 +25,10 @@ int Node::init(int mode)
     if (num_ep < 1){
         printf("invalid number of Endpoints: %d\n", num_ep);
     }
-    if (mode < 0 or mode > BM_MAX){
+    if ((mode < 0) || (mode > BM_MAX)){
         printf("invalid mode: %d\n", mode);
     }
 
-    int rets[num_ep];
     //omp_set_dynamic(0);
     omp_set_num_threads(num_ep);
     omp_set_nested(1);

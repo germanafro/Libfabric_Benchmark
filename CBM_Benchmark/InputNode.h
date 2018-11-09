@@ -13,7 +13,6 @@ public:
 
 
 	int run;
-	pthread_t thread;
 private:
 	//Endpoints
 	/*std::vector<Endpoint> rx_ep;

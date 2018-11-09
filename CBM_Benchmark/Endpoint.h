@@ -1,6 +1,5 @@
 #pragma once
 #include "Config.h"
-#include "Domain.h"
 class Endpoint
 {
 public:
@@ -13,7 +12,6 @@ public:
     int server(int thread);
     int client_thread(struct ctx * ctx);
     int cq_thread();
-    pthread_t thread_;
 
     int run;
     const char * addr;

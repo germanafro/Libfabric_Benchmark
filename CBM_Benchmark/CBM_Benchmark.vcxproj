@@ -83,10 +83,10 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>.\include\pthread_win32;D:\cloud\OneDrive\Documents\Studium\Bachelor\src\CBM_Benchmark\libfabric\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\lib\windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>D:\cloud\OneDrive\Documents\Studium\Bachelor\src\CBM_Benchmark\libfabric\x64\Release-v141\libfabric.lib;%(AdditionalDependencies);./lib/pthread_win32/pthreadVC2.lib</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);./lib/libfabric/libfabric.lib;./lib/pthread_win32/pthreadVC2.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -109,30 +109,24 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>.\include\pthread_win32;..\libfabric\include\;D:\cloud\OneDrive\Documents\Studium\Bachelor\src\CBM_Benchmark\libfabric\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\lib\windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>.\lib\libfabric\libfabric.lib;%(AdditionalDependencies);./lib/pthread_win32/pthreadVC2.lib</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);./lib/libfabric/libfabric.lib;./lib/pthread_win32/pthreadVC2.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Config.cpp" />
-    <ClCompile Include="InputNode.cpp" />
-    <ClCompile Include="Domain.cpp" />
     <ClCompile Include="Endpoint.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Node.cpp" />
-    <ClCompile Include="ProcessingNode.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Config.h" />
-    <ClInclude Include="InputNode.h" />
-    <ClInclude Include="Domain.h" />
     <ClInclude Include="Endpoint.h" />
     <ClInclude Include="Node.h" />
-    <ClInclude Include="ProcessingNode.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

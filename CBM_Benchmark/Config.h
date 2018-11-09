@@ -5,7 +5,7 @@
 #include <rdma/fi_cm.h>
 #include <rdma/fi_errno.h>
 #include <rdma/fi_rma.h>
-//Linux
+//openMP
 #include <omp.h>
 //etc
 #include <stdio.h>
