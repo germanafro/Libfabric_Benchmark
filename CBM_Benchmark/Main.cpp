@@ -39,41 +39,51 @@ int
 main(int argc, char *argv[])
 {
 	config = new Config();
+	switch (argc) {
+	case 1: // runs server with default config
+		return server(); 
+	case 4: // runs server
+	case 5: // runs client 
+		int threads = atoi(argv[1]);
+		if (threads > 0) {
+			config->threads = threads;
+		}
+		printf("threads: %d\n", threads);
 
-	if (argc == 1) {
-		return server();
-	}
+		int num_ep = atoi(argv[2]);
+		if (num_ep > 0) {
+			config->num_ep = num_ep;
+		}
+		printf("Endpoints: %d\n", config->num_ep);
 
-	if (argc != 5) {
-		fprintf(stderr, "arguments given: %d\n", argc);
-		fprintf(stderr, "usage: %s addr threads num_ep count\n", argv[0]);
+		int count = atoi(argv[3]);
+		if (count> 0) {
+			config->count = count;
+		}
+		printf("count: %d\n", config->count);
+		if (argc == 4) {
+			return server();
+		}
+		else {
+			char *addr = argv[4];
+			addr = host2ip::resolve(addr);
+			if (addr == NULL) {
+				return -1;
+			}
+			else {
+				config->addr = addr;
+			}
+			printf("addr: %s\n", config->addr);
+
+			return client(addr);
+		}
+	default:
+		fprintf(stderr, "wrong number of arguments given: %d\n", argc);
+		fprintf(stderr, "usage: %s threads num_ep count serveraddr(client mode)\n", argv[0]);
 		return -1;
 	}
 
-	char *addr = argv[1];
-	addr = host2ip::resolve(addr);
-	if (addr == NULL){
-	    return -1;
-	}
-	else {
-		config->addr = addr;
-	}
-	printf("addr: %s\n", config->addr);
-	int threads = atoi(argv[2]);
-	if (threads > 0) {
-		config->threads = threads;
-	}
-	printf("threads: %d\n", threads);
-	int num_ep = atoi(argv[3]);
-	if (num_ep > 0) {
-		config->num_ep = num_ep;
-	}
-	printf("Endpoints: %d\n", config->num_ep);
-	int count = atoi(argv[4]);
-	if (count> 0) {
-		config->count = count;
-	}
-	printf("count: %d\n", config->count);
 
-	return client(addr);
+
+	return 0;
 }
