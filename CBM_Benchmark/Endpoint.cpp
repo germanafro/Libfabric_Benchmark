@@ -188,7 +188,7 @@ int Endpoint::client_thread(struct ctx * ctxx )
                     while (!ctx->ready) {
                         //wait
                     }
-                    printf("[%d] fi_write: wrote %d bytes", thread, j + msg_size);
+                    printf("[%d] fi_write: wrote %d bytes\n", thread, (j+1) * msg_size);
                     omp_set_lock(&ctx->lock);
                     ctx->ready = 0;
                     omp_unset_lock(&ctx->lock);

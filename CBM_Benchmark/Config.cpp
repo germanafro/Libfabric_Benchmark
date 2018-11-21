@@ -20,7 +20,7 @@ Config::Config()
     total_data_size = 1024*1024*1024; // default 1 GB - - the total amount of traffic generated will be this * num_ep * threads
     max_packet_size = 1024*1024; // TODO how big can Messages be?
 
-	msg_size = 1024*1; // 1MB the size of each remote write operation per thread
+	msg_size = 1024*1024; // 1MB the size of each remote write operation per thread
     buff_size = threads*msg_size; // each thread takes up one msg_size space
 	ctrl_size = 32 * 1024 * 1024; // TODO this can probably be reduced to a few bytes
 
