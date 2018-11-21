@@ -136,12 +136,13 @@ int Endpoint::client_thread(struct ctx * ctxx )
     int k = 0;
     size_t msg_size = config->msg_size;
     int arraysize = msg_size / sizeof(int);
-    int * message = (int*) malloc(msg_size);
     // generate testdata
     for (int i =0 ; i< arraysize; i++){
-        message[i] = i;
+        for(int j=0; j<config->threads; j++){
+            msg_buff[i+j] = i+j;
+        }
     }
-    printf("message size: %d , buff size %d\n", (message[arraysize-1] + 1)* sizeof(int), config->buff_size);
+    printf("message size: %d , buff size %d\n", (msg_buff[arraysize*threads - 1], config->buff_size);
 
 #pragma omp parallel num_threads(config->threads)
     {
