@@ -176,9 +176,6 @@ int Endpoint::client_thread(struct ctx * ctxx )
                     temp++;
                     //printf("thread[%d] iter %d: fi_write: %d\n", ctx->id, j, temp);
                     memcpy(msg_buff + msg_size * ctx->id, &temp, msg_size);*/
-                    printf("debug 1\n");
-                    //memcpy(msg_buff + msg_size * ctx->id, &message, msg_size);
-                    printf("debug 2\n");
                     ret = fi_write(ep, msg_buff + msg_size * ctx->id, msg_size, fi_mr_desc(mr),
                                    0, keys.addr + msg_size * ctx->id, keys.rkey, ctx);
                     if (ret) {
@@ -195,9 +192,9 @@ int Endpoint::client_thread(struct ctx * ctxx )
 
                     //omp_destroy_lock(&ctx->lock);
                 }
+                printf("[%d]job done\n", thread);
             }
     }
-    printf("job done\n");
     return 0;
 }
 
