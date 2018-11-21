@@ -136,7 +136,7 @@ int Endpoint::client_thread(struct ctx * ctxx )
     int k = 0;
     size_t msg_size = config->msg_size;
     int arraysize = msg_size / sizeof(int);
-    int message = (int *) malloc(msg_size);
+    int * message = (int *) malloc(msg_size);
     // generate testdata
     for (int i =0 ; i< arraysize; i++){
         message[i] = i;
@@ -385,7 +385,7 @@ int Endpoint::server(int thread)
         memcpy(ctrl_buff, &keys, sizeof(keys));
         /*int temp[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
         memcpy(msg_buff, &temp, sizeof(int) * 10);*/
-        int N = buff_size / sizeof(int);
+        int N = config->buff_size / sizeof(int);
         for(int i=0; i<N; i++){
             msg_buff[i] = 0;
         }
