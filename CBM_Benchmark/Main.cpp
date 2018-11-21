@@ -72,7 +72,6 @@ main(int argc, char *argv[])
             config->total_data_size = total_data_size * 1024 * 1024;
         }
         printf("total_data_size: %d\n", config->total_data_size);
-        msg_size
 
         char *addr = argv[argc-1];
         addr = host2ip::resolve(addr);
