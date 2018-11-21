@@ -143,7 +143,7 @@ int Endpoint::client_thread(struct ctx * ctxx )
             msg_buff[i+j] = i+j;
         }
     }
-    printf("message size: %d , buff size %d\n", (msg_buff[arraysize*threads - 1], config->buff_size);
+    printf("message size: %d , buff size %d\n", msg_buff[arraysize*threads - 1], config->buff_size);
 
 #pragma omp parallel num_threads(threads)
     {
