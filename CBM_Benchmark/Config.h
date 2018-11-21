@@ -25,7 +25,7 @@ public:
     int num_en;
     int num_ep;
     int threads;
-    int count;
+    int total_data_size;
     int max_packet_size;
 
 	size_t buff_size;
@@ -48,7 +48,7 @@ struct keys {
 struct ctx {
     omp_lock_t lock;
     int ready;
-    int count;
+    int total_data_size;
     int size;
     int id;
 };

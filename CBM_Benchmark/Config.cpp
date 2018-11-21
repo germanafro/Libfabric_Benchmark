@@ -17,11 +17,11 @@ Config::Config()
     num_en = 10;
     num_ep = 10;
     threads = 10;
-    count = 10;
+    total_data_size = 1024*1024*1024;
     max_packet_size = 1024;
 
 	buff_size = 32 * 1024 * 1024;
-	msg_size = sizeof(int)*num_pn*num_en;
+	msg_size = sizeof(int); //TODO determine datatype
 	ctrl_size = 32 * 1024 * 1024;
 
 	//Event queue config

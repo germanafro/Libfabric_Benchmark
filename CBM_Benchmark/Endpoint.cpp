@@ -21,7 +21,7 @@ Endpoint::Endpoint(const char * addr, char * port,  uint64_t flags, Config * con
     for (i = 0; i < config->threads; i++) {
         omp_init_lock(&ctx[i].lock);
         ctx[i].ready = 0;
-        ctx[i].count = config->count;
+        ctx[i].total_data_size = config->total_data_size;
         ctx[i].size = config->max_packet_size;
     }
 }
@@ -134,6 +134,7 @@ int Endpoint::cq_thread()
 int Endpoint::client_thread(struct ctx * ctxx )
 {
     int k = 0;
+    size_t msg_size = config->msg_size;
 
 #pragma omp parallel num_threads(config->threads)
     {
@@ -141,14 +142,13 @@ int Endpoint::client_thread(struct ctx * ctxx )
         for (int i = 0; i < config->threads; i++)
             {
                 int thread = omp_get_thread_num();
-                for (int j=0; j<ctx->count; j++) {
+                for (int j=0; j<ctx->total_data_size; j += msg_size) {
                     ctxx[i].id = i;
                     struct ctx *ctx = &ctxx[thread];
 
                     ssize_t ret;
-                    size_t msg_size = sizeof(int);//ctx->size; //TODO determine datatype
 
-                    ret = fi_read(ep, msg_buff + msg_size * ctx->id, msg_size, fi_mr_desc(mr),
+                    /*ret = fi_read(ep, msg_buff + msg_size * ctx->id, msg_size, fi_mr_desc(mr),
                                   0, keys.addr + msg_size * ctx->id, keys.rkey, ctx);
                     if (ret) {
                         printf("[%d] fi_read: %s\n", thread, fi_strerror(ret));
@@ -166,7 +166,8 @@ int Endpoint::client_thread(struct ctx * ctxx )
                     //printf("thread[%d] iter %d: fi_read: %d\n", ctx->id, j, temp);
                     temp++;
                     //printf("thread[%d] iter %d: fi_write: %d\n", ctx->id, j, temp);
-                    memcpy(msg_buff + msg_size * ctx->id, &temp, msg_size);
+                    memcpy(msg_buff + msg_size * ctx->id, &temp, msg_size);*/
+                    memcpy(msg_buff + msg_size * ctx->id, &j, msg_size);
                     ret = fi_write(ep, msg_buff + msg_size * ctx->id, msg_size, fi_mr_desc(mr),
                                    0, keys.addr + msg_size * ctx->id, keys.rkey, ctx);
                     if (ret) {
