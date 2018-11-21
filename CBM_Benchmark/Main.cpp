@@ -44,13 +44,21 @@ main(int argc, char *argv[])
     {
         return server();
     }
-	case 4: // runs server
+	case 3: // runs server
     {
-        int num_ep = atoi(argv[2]);
+        int num_ep = atoi(argv[1]);
         if (num_ep > 0) {
             config->num_ep = num_ep;
         }
         printf("Endpoints: %d\n", config->num_ep);
+
+        int msg_size = atoi(argv[2]);
+        if (msg_size > 0) {
+            config->msg_size = msg_size * 1024 * 1024;
+        }
+        printf("msg_size: %d\n", config->msg_size);
+
+
         return server();
     }
 	case 5: // runs client
