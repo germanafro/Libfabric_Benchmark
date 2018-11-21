@@ -56,11 +56,11 @@ main(int argc, char *argv[])
 		}
 		printf("Endpoints: %d\n", config->num_ep);
 
-		int count = atoi(argv[3]);
-		if (count> 0) {
-			config->count = count;
+		int total_data_size = atoi(argv[3]);
+		if (total_data_size> 0) {
+			config->total_data_size = total_data_size;
 		}
-		printf("count: %d\n", config->count);
+		printf("total_data_size: %d\n", config->total_data_size);
 		if (argc == 4) {
 			return server();
 		}
