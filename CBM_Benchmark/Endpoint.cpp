@@ -140,7 +140,7 @@ int Endpoint::client_thread(struct ctx * ctxx )
     // generate testdata
     for (int i =0 ; i< arraysize; i++){
         for(int j=0; j<threads; j++){
-            msg_buff[(i+j) sizeof(int)] = i+j;
+            msg_buff[(i+j) * sizeof(int)] = i+j;
         }
     }
     printf("message size: %d , buff size %d\n", msg_buff[(arraysize-1)*threads], config->buff_size);
