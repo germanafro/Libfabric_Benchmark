@@ -55,7 +55,7 @@ main(int argc, char *argv[])
         int msg_size = atoi(argv[2]);
         if (msg_size > 0) {
             config->msg_size = msg_size * 1024 * 1024;
-            config->buff_size = config->threads*msg_size; // each thread takes up one msg_size space
+            config->buff_size = config->threads*config->msg_size; // each thread takes up one msg_size space
         }
         printf("msg_size: %d\n", config->msg_size);
 
@@ -117,7 +117,7 @@ main(int argc, char *argv[])
             int msg_size = atoi(argv[4]);
             if (msg_size > 0) {
                 config->msg_size = msg_size * 1024 * 1024;
-                config->buff_size = threads*msg_size; // each thread takes up one msg_size space
+                config->buff_size = threads*config->msg_size; // each thread takes up one msg_size space
             }
             printf("msg_size: %d\n", config->msg_size);
 
