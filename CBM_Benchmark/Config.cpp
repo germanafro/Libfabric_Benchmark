@@ -17,12 +17,12 @@ Config::Config()
     num_en = 10;
     num_ep = 10;
     threads = 10;
-    total_data_size = 1024*1024*1024;
-    max_packet_size = 1024;
+    total_data_size = 1024*1024*1024; // default 1 GB - - the total amount of traffic generated will be this * num_ep * threads
+    max_packet_size = 1024*1024; // TODO how big can Messages be?
 
-	buff_size = 32 * 1024 * 1024;
-	msg_size = sizeof(int); //TODO determine datatype
-	ctrl_size = 32 * 1024 * 1024;
+	msg_size = 1024*1024; // 1MB the size of each remote write operation per thread
+    buff_size = threads*msg_size; // each thread takes up one msg_size space
+	ctrl_size = 32 * 1024 * 1024; // TODO this can probably be reduced to a few bytes
 
 	//Event queue config
     eq_attr.size = 0;

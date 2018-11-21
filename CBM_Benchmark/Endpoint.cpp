@@ -78,7 +78,7 @@ int Endpoint::init(int thread)
         return ret;
     }
 
-    msg_buff = (int *) malloc(config->msg_size);
+    msg_buff = (int *) malloc(config->buff_size);
     if (!msg_buff) {
         printf("[%d] error malloc msg\n", thread);
         return ret;
@@ -135,6 +135,13 @@ int Endpoint::client_thread(struct ctx * ctxx )
 {
     int k = 0;
     size_t msg_size = config->msg_size;
+    int arraysize = msg_size / sizeof(int);
+    int message = (int *) malloc(msg_size);
+    // generate testdata
+    for (int i =0 ; i< arraysize; i++){
+        message[i] = i;
+    }
+    printf("message size: %d\n", message[arraysize-1]);
 
 #pragma omp parallel num_threads(config->threads)
     {
@@ -376,8 +383,12 @@ int Endpoint::server(int thread)
         }
 
         memcpy(ctrl_buff, &keys, sizeof(keys));
-        int temp[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-        memcpy(msg_buff, &temp, sizeof(int) * 10);
+        /*int temp[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+        memcpy(msg_buff, &temp, sizeof(int) * 10);*/
+        int N = buff_size / sizeof(int);
+        for(int i=0; i<N; i++){
+            msg_buff[i] = 0;
+        }
 
         rret = fi_send(ep, ctrl_buff, sizeof(keys), fi_mr_desc(mr), 0, NULL);
         if (rret) {

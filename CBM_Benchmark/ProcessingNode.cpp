@@ -11,9 +11,11 @@ ProcessingNode::ProcessingNode(const char *addr, uint64_t flags, Config * config
 ProcessingNode::~ProcessingNode()
 {
 }
-
+//TODO remove me
 int ProcessingNode::initServer()
 {
+    printf("Error! this call is deprecated ProcessingNode.initServer()");
+    return -1;
 	int ret;
 	omp_set_dynamic(0);
 	omp_set_num_threads(10);

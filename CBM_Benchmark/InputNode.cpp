@@ -32,9 +32,11 @@ InputNode::~InputNode()
 	// note: Endpoints should be cleaned up within the respective class
 }
 
-
+//TODO remove me
 int InputNode::client(void * cq_thread(void* arg))
 {
+    printf("Error! this call is deprecated ProcessingNode.initServer()");
+    return -1;
 	int ret;
 
 	ret = fi_endpoint(domain, fi, &ep, NULL);
