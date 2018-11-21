@@ -415,11 +415,10 @@ int Endpoint::server(int thread)
             fprintf(stderr, "invalid event %u\n", event);
             return (int) rret;
         }
-        memcpy(&temp, msg_buff, sizeof(int) * 10);
+        //memcpy(&temp, msg_buff, sizeof(int) * 10);
         printf("[%d] batch received:\n", thread);
-        for (int i = 0; i < 10; i++) {
-            printf("%d\n", temp[i]);
-        }
+        printf("%d\n.\n.\n.\n%d\n", msg_buff[0], msg_buff(N-1));
+
 
         fi_close(&ep->fid);
     }
