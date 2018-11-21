@@ -136,7 +136,7 @@ int Endpoint::client_thread(struct ctx * ctxx )
     int k = 0;
     size_t msg_size = config->msg_size;
     int arraysize = msg_size / sizeof(int);
-    int message [] = (int []) malloc(msg_size);
+    int message [arraysize];
     // generate testdata
     for (int i =0 ; i< arraysize; i++){
         message[i] = i;
