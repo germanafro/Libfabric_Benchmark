@@ -175,9 +175,8 @@ int Endpoint::client_thread(struct ctx * ctxx )
                     temp++;
                     //printf("thread[%d] iter %d: fi_write: %d\n", ctx->id, j, temp);
                     memcpy(msg_buff + msg_size * ctx->id, &temp, msg_size);*/
-                    printf("debug 1\n");
                     memcpy(msg_buff + offset, &message[0], msg_size);
-                    printf("debug 2: %d\n", msg_buff[offset + 3 * sizeof(int)]);
+                    printf("msg_buff %d\n", msg_buff[arraysize-1] + 1)* sizeof(int));
                     ret = fi_write(ep, msg_buff + offset, msg_size, fi_mr_desc(mr),
                                    0, keys.addr + offset, keys.rkey, ctx);
                     if (ret) {
