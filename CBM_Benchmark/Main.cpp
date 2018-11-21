@@ -58,7 +58,7 @@ main(int argc, char *argv[])
 
 		int total_data_size = atoi(argv[3]);
 		if (total_data_size> 0) {
-			config->total_data_size = total_data_size;
+			config->total_data_size = total_data_size *1024 *1024;
 		}
 		printf("total_data_size: %d\n", config->total_data_size);
 		if (argc == 4) {
