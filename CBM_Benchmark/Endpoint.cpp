@@ -417,7 +417,7 @@ int Endpoint::server(int thread)
         }
         //memcpy(&temp, msg_buff, sizeof(int) * 10);
         printf("[%d] batch received:\n", thread);
-        printf("%d\n.\n.\n.\n%d\n", msg_buff[0], msg_buff[10]);
+        printf("%d\n.\n.\n.\n%d\n", msg_buff[0], msg_buff[N/4 -1]);
 
 
         fi_close(&ep->fid);
