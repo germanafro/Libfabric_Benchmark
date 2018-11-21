@@ -135,20 +135,18 @@ int Endpoint::client_thread(struct ctx * ctxx )
 {
     int k = 0;
     size_t msg_size = config->msg_size;
-    int threads = config->threads;
     int arraysize = msg_size / sizeof(int);
+    int message[arraysize];
     // generate testdata
     for (int i =0 ; i< arraysize; i++){
-        for(int j=0; j<threads; j++){
-            msg_buff[(i+j) * sizeof(int)] = i+j;
-        }
+        message[i] = i;
     }
-    printf("message size: %d , buff size %d\n", msg_buff[(arraysize-1)*threads], config->buff_size);
+    printf("message size: %d , buff size %d\n", (message[arraysize-1] + 1)* sizeof(int), config->buff_size);
 
-#pragma omp parallel num_threads(threads)
+#pragma omp parallel num_threads(config->threads)
     {
      #pragma omp for
-        for (int i = 0; i < threads; i++)
+        for (int i = 0; i < config->threads; i++)
             {
                 int thread = omp_get_thread_num();
                 for (int j=0; j<ctx->total_data_size; j += msg_size) {
@@ -176,6 +174,9 @@ int Endpoint::client_thread(struct ctx * ctxx )
                     temp++;
                     //printf("thread[%d] iter %d: fi_write: %d\n", ctx->id, j, temp);
                     memcpy(msg_buff + msg_size * ctx->id, &temp, msg_size);*/
+                    printf("debug 1\n");
+                    memcpy(msg_buff + msg_size * ctx->id, message, msg_size);
+                    printf("debug 2\n");
                     ret = fi_write(ep, msg_buff + msg_size * ctx->id, msg_size, fi_mr_desc(mr),
                                    0, keys.addr + msg_size * ctx->id, keys.rkey, ctx);
                     if (ret) {
@@ -185,16 +186,16 @@ int Endpoint::client_thread(struct ctx * ctxx )
                     while (!ctx->ready) {
                         //wait
                     }
-                    printf("[%d] fi_write: wrote %d bytes\n", thread, (j+1) * msg_size);
+                    printf("[%d] fi_write: wrote %d bytes", thread, j + msg_size);
                     omp_set_lock(&ctx->lock);
                     ctx->ready = 0;
                     omp_unset_lock(&ctx->lock);
 
                     //omp_destroy_lock(&ctx->lock);
                 }
-                printf("[%d]job done\n", thread);
             }
     }
+    printf("job done\n");
     return 0;
 }
 
