@@ -77,10 +77,10 @@ main(int argc, char *argv[])
 
 			return client(addr);
 		}
-	default:
+	//default:
 		//fprintf(stderr, "wrong number of arguments given: %d\n", argc);
 		//fprintf(stderr, "usage:\n[server auto conf] %s\n[server manual conf] %s threads num_ep count\n[client] %s threads num_ep total_data_Size(MB) serveraddr\n", argv[0]);
-		return -1;
+	//	return -1;
 	}
 
 
