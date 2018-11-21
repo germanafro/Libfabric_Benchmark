@@ -141,7 +141,7 @@ int Endpoint::client_thread(struct ctx * ctxx )
     for (int i =0 ; i< arraysize; i++){
         message[i] = i;
     }
-    printf("message size: %d , %d\n", message[arraysize]* sizeof(int), msg_size);
+    printf("message size: %d , %d\n", (message[arraysize-1] + 1)* sizeof(int), msg_size);
 
 #pragma omp parallel num_threads(config->threads)
     {
@@ -174,7 +174,9 @@ int Endpoint::client_thread(struct ctx * ctxx )
                     temp++;
                     //printf("thread[%d] iter %d: fi_write: %d\n", ctx->id, j, temp);
                     memcpy(msg_buff + msg_size * ctx->id, &temp, msg_size);*/
+                    printf("debug 1");
                     memcpy(msg_buff + msg_size * ctx->id, &message, msg_size);
+                    printf("debug 2");
                     ret = fi_write(ep, msg_buff + msg_size * ctx->id, msg_size, fi_mr_desc(mr),
                                    0, keys.addr + msg_size * ctx->id, keys.rkey, ctx);
                     if (ret) {
