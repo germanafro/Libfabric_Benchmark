@@ -141,7 +141,7 @@ int Endpoint::client_thread(struct ctx * ctxx )
     for (int i =0 ; i< arraysize; i++){
         message[i] = i;
     }
-    printf("message size: %d , %d\n", (message[arraysize-1] + 1)* sizeof(int), msg_size);
+    printf("message size: %d , %d\n", (message[arraysize-1] + 1)* sizeof(int), sizeof(msg_buff));
 
 #pragma omp parallel num_threads(config->threads)
     {
