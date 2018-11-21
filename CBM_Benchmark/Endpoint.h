@@ -21,7 +21,7 @@ public:
 
 
     struct ctx * ctx;
-    void * msg_buff;
+    int * msg_buff;
     void * ctrl_buff;
     struct keys keys;
 
