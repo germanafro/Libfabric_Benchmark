@@ -318,30 +318,50 @@ int Endpoint::server(int thread)
         return ret;
     }
 
-	ret = fi_pep_bind(pep, &av->fid, 0);
-	if (ret) {
-		printf("[%d]fi_pep_bind(av): %s\n", thread, fi_strerror(ret));
-		return ret;
-	}
-
     ret = fi_listen(pep);
     if (ret) {
         printf("[%d]fi_listen: %s\n", thread, fi_strerror(ret));
         return ret;
     }
 
+
+#ifdef DEBUG
+	ret = fi_endpoint(domain, fi, &ep, NULL);
+	if (ret) {
+		printf("[%d]fi_endpoint: %s\n", thread, fi_strerror(ret));
+		return ret;
+	}
+
+	ret = fi_ep_bind(ep, &av->fid, 0);
+	if (ret) {
+		printf("[%d]fi_pep_bind(av): %s\n", thread, fi_strerror(ret));
+		return ret;
+	}
+
+	ret = fi_enable(ep);
+	if (ret) {
+		printf("[%d]fi_enable: %s\n", thread, fi_strerror(ret));
+		return ret;
+	}
+
 	char * addr = (char*)malloc(30);
 	size_t len = 30;
 	fi_av_straddr(av, fi->src_addr, addr, &len);
+#endif // DEBUG
 
+	
+	// debug
     size_t buff_Size = config->buff_size;
     struct fi_eq_cm_entry entry;
     uint32_t event;
     ssize_t rret;
 	
     while (1) {
-
-        printf("[%d]listening: %s\n", thread, addr);
+#ifdef DEBUG
+		printf("[%d]listening: %s\n", thread, addr);
+#else
+		printf("[%d]listening:\n", thread);
+#endif // DEBUG
 
         rret = fi_eq_sread(eq, &event, &entry, sizeof(entry), -1, 0);
         if (rret > 0) {

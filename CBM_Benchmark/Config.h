@@ -61,7 +61,7 @@ enum {
 };
 
 #define FIVER FI_VERSION(1, 5)
-
+#define DEBUG
 //
 #define DEFAULT_PROCESSING_NODE_SIZE 10
 #define DEFAULT_ENTRY_NODE_SIZE 10
