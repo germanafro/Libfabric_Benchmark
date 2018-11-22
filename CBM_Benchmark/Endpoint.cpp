@@ -159,12 +159,11 @@ int Endpoint::client_thread(struct ctx * ctxx )
 
 				int ecount = 0;
 				double data = 0;
-				time_t timer;
-				time_t start;
-				double seconds;
+				clock_t time;
+				int seconds;
 				printf("[%d]job start, target: %f bytes\n", thread, ctx->total_data_size);
 
-				time(&start);
+				time = clock();
 			
                 while (data < ctx->total_data_size) {
 
@@ -210,8 +209,8 @@ int Endpoint::client_thread(struct ctx * ctxx )
 
                     //omp_destroy_lock(&ctx->lock);
                 }
-				time(&timer);
-				seconds = difftime(timer, start);
+				time = clock() - time;
+				seconds = (double)time / CLOCKS_PER_SEC * 1000;
                 printf("[%d]job done, time: %f seconds,  total data sent: %f, error count: %d\n", thread, seconds, data, ecount);
             }
     }
