@@ -148,7 +148,7 @@ int Endpoint::client_thread(struct ctx * ctxx )
         for (int i = 0; i < config->threads; i++)
             {
                 int thread = omp_get_thread_num();
-                for (int j=0; j<ctx->total_data_size; j += msg_size) {
+                for (double j=0; j<ctx->total_data_size; j += msg_size) {
                     ctxx[i].id = i;
                     struct ctx *ctx = &ctxx[thread];
                     uint64_t offset = msg_size*ctx->id;
