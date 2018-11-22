@@ -86,7 +86,7 @@
       <AdditionalIncludeDirectories>.\lib\windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies);./lib/libfabric/libfabric.lib;./lib/pthread_win32/pthreadVC2.lib</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);./lib/libfabric/libfabric.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -114,7 +114,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>%(AdditionalDependencies);./lib/libfabric/libfabric.lib;./lib/pthread_win32/pthreadVC2.lib</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);./lib/libfabric/libfabric.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

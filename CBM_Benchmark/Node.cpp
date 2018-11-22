@@ -35,6 +35,7 @@ int Node::init(int mode)
     int int_port = atoi(config->port);
     for(int i = 0; i<num_ep; i++){
         char *port = new char(10);
+#pragma warning(suppress : 4996)
         sprintf(port,"%d",int_port+i);
         printf("[%d] pushing Endpoint | addr: %s, port: %s\n", i, addr, port);
         eps.push_back(new Endpoint(addr, port, flags, config)); // TODO verbs provider addressing?

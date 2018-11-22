@@ -73,7 +73,4 @@ enum {
 #define MAX_CTRL_MSG_SIZE 2147483// FIXME
 
 
-
-
-
-
+#define BILLION  1000000000L
