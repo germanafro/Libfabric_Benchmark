@@ -137,7 +137,7 @@ int Endpoint::client_thread(struct ctx * ctxx )
     size_t msg_size = config->msg_size;
 #ifdef DEBUG
 	size_t buff_size = config->buff_size;
-	printf("msg_size: %l, buff_size: %l, need size: %l\n", msg_size, buff_size, msg_size*config->threads);
+	printf("msg_size: %d, buff_size: %d, need size: %d\n", msg_size, buff_size, msg_size*config->threads);
 #endif // DEBUG
     int arraysize = msg_size / sizeof(int);
     int message[arraysize];
