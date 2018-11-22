@@ -47,6 +47,7 @@ main(int argc, char *argv[])
 	}
 	while (fi->next) {
 		printf("provider: %s %s\n", fi->fabric_attr->prov_name, fi->fabric_attr->name);
+		fi = fi->next;
 	}
 	switch (argc) {
 	case 1: // runs server with default config
