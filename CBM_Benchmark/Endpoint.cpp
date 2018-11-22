@@ -78,7 +78,7 @@ int Endpoint::init(int thread)
         return ret;
     }
 
-    msg_buff = (int *) malloc(config->buff_size*2);
+    msg_buff = (int *) malloc(config->buff_size);
     if (!msg_buff) {
         printf("[%d] error malloc msg\n", thread);
         return ret;
@@ -139,7 +139,7 @@ int Endpoint::client_thread(struct ctx * ctxx )
 	printf("msg_size: %d, buff_size: %d, need size: %d\n", msg_size, buff_size, msg_size*config->threads);
 #endif // DEBUG
     int arraysize = msg_size / sizeof(int);
-    int message[arraysize];
+    int * message = (int *)malloc(msg_size);
     // generate testdata
     for (int i =0 ; i< arraysize; i++){
         message[i] = i;
