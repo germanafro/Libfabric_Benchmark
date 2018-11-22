@@ -60,7 +60,7 @@ enum {
     BM_MAX
 };
 
-#define FIVER FI_VERSION(1, 6)
+#define FIVER FI_VERSION(1, 5)
 
 //
 #define DEFAULT_PROCESSING_NODE_SIZE 10
