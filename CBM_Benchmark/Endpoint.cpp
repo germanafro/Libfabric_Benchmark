@@ -1,5 +1,6 @@
 #include "Endpoint.h"
 #include <omp.h>
+#include <time.h>
 using namespace std;
 /*
  *
@@ -150,15 +151,22 @@ int Endpoint::client_thread(struct ctx * ctxx )
      #pragma omp for
         for (int i = 0; i < config->threads; i++)
             {
+				ssize_t ret;
                 int thread = omp_get_thread_num();
+				struct ctx *ctx = &ctxx[thread];
+				ctx->id = thread; // sync thread and ctx id
+				uint64_t offset = arraysize*thread;
+
 				int ecount = 0;
 				double data = 0;
-                while (data < ctx->total_data_size) {
-                    ctxx[thread].id = thread;
-                    struct ctx *ctx = &ctxx[thread];
-                    uint64_t offset = arraysize*thread;
+				time_t timer;
+				time_t start;
+				double seconds;
+				printf("[%d]job start, target: %f bytes\n", thread, ctx->total_data_size);
 
-                    ssize_t ret;
+				time(&start);
+			
+                while (data < ctx->total_data_size) {
 
                     /*ret = fi_read(ep, msg_buff + msg_size * ctx->id, msg_size, fi_mr_desc(mr),
                                   0, keys.addr + msg_size * ctx->id, keys.rkey, ctx);
@@ -193,14 +201,18 @@ int Endpoint::client_thread(struct ctx * ctxx )
                         //wait
                     }
 					data += msg_size;
-                    printf("[%d] fi_write: wrote %f bytes \n", thread, data);
+#ifdef DEBUG
+					printf("[%d] fi_write: wrote %f bytes in total \n", thread, data);
+#endif // DEBUG
                     omp_set_lock(&ctx->lock);
                     ctx->ready = 0;
                     omp_unset_lock(&ctx->lock);
 
                     //omp_destroy_lock(&ctx->lock);
                 }
-                printf("[%d]job done, error count: %d\n", thread, ecount);
+				time(&timer);
+				seconds = difftime(timer, start);
+                printf("[%d]job done, time: %f seconds,  total data sent: %f, error count: %d\n", thread, seconds, data, ecount);
             }
     }
     return 0;
