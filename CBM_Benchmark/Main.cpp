@@ -39,6 +39,15 @@ int
 main(int argc, char *argv[])
 {
 	config = new Config();
+	struct fi_info * fi;
+	int ret = fi_getinfo(FIVER, NULL, NULL, 0, config->hints, &fi); //initial network check
+	if (ret) {
+		printf("initial fi_getinfo: %s\n", fi_strerror(ret));
+		return ret;
+	}
+	while (fi->next) {
+		printf("provider: %s %s\n", fi->fabric_attr->prov_name, fi->fabric_attr->name);
+	}
 	switch (argc) {
 	case 1: // runs server with default config
     {
