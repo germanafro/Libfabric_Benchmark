@@ -118,7 +118,7 @@ main(int argc, char *argv[])
             }
             printf("Endpoints: %d\n", config->num_ep);
 
-            int total_data_size = atoi(argv[3]);
+            double total_data_size = atoi(argv[3]);
             if (total_data_size > 0) {
                 config->total_data_size = total_data_size * 1024 * 1024;
             }
