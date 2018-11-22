@@ -122,7 +122,7 @@ main(int argc, char *argv[])
             if (total_data_size > 0) {
                 config->total_data_size = total_data_size * 1024 * 1024;
             }
-            printf("total_data_size: %d\n", config->total_data_size);
+            printf("total_data_size: %f\n", config->total_data_size);
 
             int msg_size = atoi(argv[4]);
             if (msg_size > 0) {
