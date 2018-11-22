@@ -74,3 +74,4 @@ enum {
 
 
 #define BILLION  1000000000L
+#define MILLION  1000000L

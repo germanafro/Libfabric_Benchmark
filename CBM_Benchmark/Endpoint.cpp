@@ -221,7 +221,7 @@ int Endpoint::client_thread(struct ctx * ctxx )
 
 	accum = (stop.tv_sec - start.tv_sec)
 		+ (stop.tv_nsec - start.tv_nsec)
-		/ BILLION;
+		/ MILLION;
 	printf("time: %lf\n", accum);
     return 0;
 }
