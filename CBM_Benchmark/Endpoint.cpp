@@ -211,7 +211,7 @@ int Endpoint::client_thread(struct ctx * ctxx )
                 }
 				time = clock() - time;
 				seconds = (double)time / CLOCKS_PER_SEC * 1000;
-                printf("[%d]job done, time: %f seconds,  total data sent: %f, error count: %d\n", thread, seconds, data, ecount);
+                printf("[%d]job done, time: %d ms,  total data sent: %f bytes, error count: %d\n", thread, seconds, data, ecount);
             }
     }
     return 0;
