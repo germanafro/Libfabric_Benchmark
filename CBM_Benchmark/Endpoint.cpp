@@ -133,7 +133,6 @@ int Endpoint::cq_thread()
 
 int Endpoint::client_thread(struct ctx * ctxx )
 {
-    int k = 0;
     size_t msg_size = config->msg_size;
 #ifdef DEBUG
 	size_t buff_size = config->buff_size;
@@ -152,7 +151,9 @@ int Endpoint::client_thread(struct ctx * ctxx )
         for (int i = 0; i < config->threads; i++)
             {
                 int thread = omp_get_thread_num();
-                for (double j=0; j<ctx->total_data_size; j += msg_size) {
+				int ecount = 0;
+				double data = 0;
+                while (data < ctx->total_data_size) {
                     ctxx[thread].id = thread;
                     struct ctx *ctx = &ctxx[thread];
                     uint64_t offset = msg_size*ctx->id;
@@ -184,19 +185,22 @@ int Endpoint::client_thread(struct ctx * ctxx )
                                    0, keys.addr + offset, keys.rkey, ctx);
                     if (ret) {
                         printf("[%d] fi_write: %s\n", thread, fi_strerror(ret));
+						ecount++;
+						continue;
                     }
 
                     while (!ctx->ready) {
                         //wait
                     }
-                    printf("[%d] fi_write: wrote %f bytes \n", thread, j + msg_size);
+					data += msg_size;
+                    printf("[%d] fi_write: wrote %f bytes \n", thread, data);
                     omp_set_lock(&ctx->lock);
                     ctx->ready = 0;
                     omp_unset_lock(&ctx->lock);
 
                     omp_destroy_lock(&ctx->lock);
                 }
-                printf("[%d]job done\n", thread);
+                printf("[%d]job done, error count: %d\n", thread, ecount);
             }
     }
     return 0;
