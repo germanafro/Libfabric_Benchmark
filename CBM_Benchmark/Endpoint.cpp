@@ -219,9 +219,9 @@ int Endpoint::client_thread(struct ctx * ctxx )
 		exit(EXIT_FAILURE);
 	}
 
-	accum = (stop.tv_sec - start.tv_sec)
-		+ (stop.tv_nsec - start.tv_nsec)
-		/ MILLION;
+	accum = (double)(stop.tv_sec - start.tv_sec)
+		+ (double)(stop.tv_nsec - start.tv_nsec)
+		/ BILLION;
 	printf("time: %lf\n", accum);
     return 0;
 }
