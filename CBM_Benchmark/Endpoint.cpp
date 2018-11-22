@@ -148,7 +148,7 @@ int Endpoint::client_thread(struct ctx * ctxx )
 
 	clock_t time;
 	int seconds;
-
+	time = clock();
 #pragma omp parallel num_threads(config->threads)
     {
      #pragma omp for
@@ -163,8 +163,6 @@ int Endpoint::client_thread(struct ctx * ctxx )
 				int ecount = 0;
 				double data = 0;
 				printf("[%d]job start, target: %f bytes\n", thread, ctx->total_data_size);
-
-				time = clock();
 			
                 while (data < ctx->total_data_size) {
 
