@@ -296,6 +296,16 @@ int Endpoint::server(int thread)
     keys.addr = (uint64_t) msg_buff;
     keys.rkey = fi_mr_key(mr);
 
+	struct fi_av_attr av_attr;
+	struct fid_av * av;
+	memset(&av_attr, 0, sizeof(av_attr));
+	av_attr.type = fi->domain_attr->av_type;
+	ret = fi_av_open(domain, &av_attr, &av, NULL);
+	if (ret) {
+		printf("[%d]fi_av_open: %s\n", thread, fi_strerror(ret));
+		return ret;
+	}
+
     ret = fi_passive_ep(fabric, fi, &pep, NULL);
     if (ret) {
         printf("[%d]fi_passive_ep: %s\n", thread, fi_strerror(ret));
@@ -308,19 +318,30 @@ int Endpoint::server(int thread)
         return ret;
     }
 
+	ret = fi_pep_bind(pep, &av->fid, 0);
+	if (ret) {
+		printf("[%d]fi_pep_bind(av): %s\n", thread, fi_strerror(ret));
+		return ret;
+	}
+
     ret = fi_listen(pep);
     if (ret) {
         printf("[%d]fi_listen: %s\n", thread, fi_strerror(ret));
         return ret;
     }
+
+	char * addr = (char*)malloc(30);
+	size_t len = 30;
+	fi_av_straddr(av, fi->src_addr, addr, &len);
+
     size_t buff_Size = config->buff_size;
     struct fi_eq_cm_entry entry;
     uint32_t event;
     ssize_t rret;
-
+	
     while (1) {
 
-        printf("[%d]listening\n", thread);
+        printf("[%d]listening: %s\n", thread, addr);
 
         rret = fi_eq_sread(eq, &event, &entry, sizeof(entry), -1, 0);
         if (rret > 0) {
