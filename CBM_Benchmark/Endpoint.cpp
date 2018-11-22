@@ -396,17 +396,17 @@ int Endpoint::server(int thread)
             return ret;
         }
 
-        /*ret = fi_enable(ep);
-        if (ret) {
-            perror("fi_enable");
-            return ret;
-        }*/
-
         ret = fi_accept(ep, NULL, 0);
         if (ret) {
             perror("fi_accept");
             return ret;
         }
+
+		ret = fi_enable(ep);
+		if (ret) {
+			perror("fi_enable");
+			return ret;
+		}
 
         rret = fi_eq_sread(eq, &event, &entry, sizeof(entry), -1, 0);
         if (rret > 0) {
