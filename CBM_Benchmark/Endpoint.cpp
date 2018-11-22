@@ -146,6 +146,9 @@ int Endpoint::client_thread(struct ctx * ctxx )
         message[i] = i;
     }
 
+	clock_t time;
+	int seconds;
+
 #pragma omp parallel num_threads(config->threads)
     {
      #pragma omp for
@@ -159,8 +162,6 @@ int Endpoint::client_thread(struct ctx * ctxx )
 
 				int ecount = 0;
 				double data = 0;
-				clock_t time;
-				int seconds;
 				printf("[%d]job start, target: %f bytes\n", thread, ctx->total_data_size);
 
 				time = clock();
@@ -209,11 +210,12 @@ int Endpoint::client_thread(struct ctx * ctxx )
 
                     //omp_destroy_lock(&ctx->lock);
                 }
-				time = clock() - time;
-				seconds = (double)time / CLOCKS_PER_SEC * 1000;
-                printf("[%d]job done, time: %d ms,  total data sent: %f bytes, error count: %d\n", thread, seconds, data, ecount);
+                printf("[%d]job done, total data sent: %f bytes, error count: %d\n", thread, data, ecount);
             }
     }
+	time = clock() - time;
+	seconds = (double)time / CLOCKS_PER_SEC * 1000;
+	printf("time: %d\n", seconds);
     return 0;
 }
 
