@@ -156,7 +156,7 @@ int Endpoint::client_thread(struct ctx * ctxx )
                 while (data < ctx->total_data_size) {
                     ctxx[thread].id = thread;
                     struct ctx *ctx = &ctxx[thread];
-                    uint64_t offset = msg_size*ctx->id;
+                    uint64_t offset = arraysize*thread;
 
                     ssize_t ret;
 
@@ -180,7 +180,7 @@ int Endpoint::client_thread(struct ctx * ctxx )
                     //printf("thread[%d] iter %d: fi_write: %d\n", ctx->id, j, temp);
                     memcpy(msg_buff + msg_size * ctx->id, &temp, msg_size);*/
 
-                    memcpy(&msg_buff[arraysize*thread], &message[0], msg_size);
+                    memcpy(msg_buff + offset, &message[0], msg_size);
                     ret = fi_write(ep, msg_buff + offset, msg_size, fi_mr_desc(mr),
                                    0, keys.addr + offset, keys.rkey, ctx);
                     if (ret) {
@@ -198,7 +198,7 @@ int Endpoint::client_thread(struct ctx * ctxx )
                     ctx->ready = 0;
                     omp_unset_lock(&ctx->lock);
 
-                    omp_destroy_lock(&ctx->lock);
+                    //omp_destroy_lock(&ctx->lock);
                 }
                 printf("[%d]job done, error count: %d\n", thread, ecount);
             }
