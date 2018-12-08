@@ -49,18 +49,18 @@ int Endpoint::init(int thread)
     struct fi_eq_attr eq_attr = config->eq_attr;
     struct fi_cq_attr cq_attr = config->cq_attr;
     printf("[%d] initializing Endpoint | addr: %s, port: %s\n", thread, addr, port);
-    ret= fi_getinfo(FIVER, addr, port, flags, config->hints, &fi);
+    ret= fi_getinfo(FIVER, addr, port, 0, config->hints, &fi);
     if (ret) {
         printf("[%d] fi_getinfo: %s\n", thread, fi_strerror(ret));
         return ret;
     }
+	printf("[%d] fi_getinfo: %s %s\n", thread, fi->fabric_attr->prov_name, fi->fabric_attr->name);
 
     ret = fi_fabric(fi->fabric_attr, &fabric, NULL);
     if (ret) {
         printf("[%d] fi_fabric: %s\n", thread, fi_strerror(ret));
         return ret;
     }
-    printf("[%d] fi_getinfo: %s %s\n", thread, fi->fabric_attr->prov_name, fi->fabric_attr->name);
 
 
     ret = fi_eq_open(fabric, &eq_attr, &eq, NULL);
@@ -296,6 +296,9 @@ int Endpoint::client(int thread)
     struct fi_cq_msg_entry comp;
     ret = fi_cq_sread(cq, &comp, 1, NULL, -1);
     if (ret != 1) {
+		struct fi_cq_err_entry err_entry;
+        fi_cq_readerr(cq, &err_entry, 0);
+        printf("[%d] %s %s \n", thread, fi_strerror(err_entry.err), fi_cq_strerror (cq, err_entry.prov_errno, err_entry.err_data, NULL, 0));
         perror("fi_cq_sread");
         return ret;
     }
@@ -430,17 +433,17 @@ int Endpoint::server(int thread)
             return ret;
         }
 
-        ret = fi_accept(ep, NULL, 0);
-        if (ret) {
-            perror("fi_accept");
-            return ret;
-        }
-
 		ret = fi_enable(ep);
 		if (ret) {
 			perror("fi_enable");
 			return ret;
 		}
+		
+        ret = fi_accept(ep, NULL, 0);
+        if (ret) {
+            perror("fi_accept");
+            return ret;
+        }
 
         rret = fi_eq_sread(eq, &event, &entry, sizeof(entry), -1, 0);
         if (rret > 0) {
@@ -471,10 +474,13 @@ int Endpoint::server(int thread)
         }
 
         struct fi_cq_msg_entry comp;
-        ret = fi_cq_sread(cq, &comp, 1, NULL, -1);
+		ret = fi_cq_sread(cq, &comp, 1, NULL, -1);
         if (ret < 1) {
-            perror("fi_cq_sread");
-            return ret;
+            struct fi_cq_err_entry err_entry;
+			fi_cq_readerr(cq, &err_entry, 0);
+			printf("[%d] %s %s \n", thread, fi_strerror(err_entry.err), fi_cq_strerror(cq, err_entry.prov_errno, err_entry.err_data, NULL, 0));
+			perror("fi_cq_sread");
+			return ret;
         }
 
         printf("[%d]connected\n", thread);

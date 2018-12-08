@@ -11,7 +11,7 @@ const char * Config::console_spacer()
 Config::Config()
 {
     //Default Node configs
-	addr = "127.0.0.1";
+	addr = NULL;
     port = "6666"; // max len 10
     num_pn = 10;
     num_en = 10;
