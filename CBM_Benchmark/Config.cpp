@@ -46,8 +46,10 @@ Config::Config()
 		perror("fi_allocinfo");
 	}
 	hints->addr_format = FI_SOCKADDR_IN;
+	//hints->fabric_attr->prov_name = strdup("verbs");
 	hints->ep_attr->type = FI_EP_MSG;
-	hints->domain_attr->mr_mode = FI_MR_BASIC;
+	hints->domain_attr->mr_mode = FI_MR_BASIC;// | FI_MR_LOCAL | FI_MR_ALLOCATED | FI_MR_PROV_KEY | FI_MR_VIRT_ADDR;
+	//hints->domain_attr->mr_mode = FI_MR_BASIC;
 	hints->caps = FI_MSG | FI_RMA;
 	hints->mode = FI_CONTEXT | FI_LOCAL_MR | FI_RX_CQ_DATA;
 }

@@ -329,7 +329,7 @@ int Endpoint::server(int thread)
 	struct fi_av_attr av_attr;
 	struct fid_av * av;
 	memset(&av_attr, 0, sizeof(av_attr));
-	av_attr.type = fi->domain_attr->av_type;
+	av_attr.type = FI_AV_UNSPEC; //fi->domain_attr->av_type;
 	ret = fi_av_open(domain, &av_attr, &av, NULL);
 	if (ret) {
 		printf("[%d]fi_av_open: %s\n", thread, fi_strerror(ret));
@@ -388,7 +388,7 @@ int Endpoint::server(int thread)
 #ifdef DEBUG
 		printf("[%d]listening: %s\n", thread, addr);
 #else
-		printf("[%d]listening:\n", thread);
+		printf("[%d]listening\n", thread);
 #endif // DEBUG
 
         rret = fi_eq_sread(eq, &event, &entry, sizeof(entry), -1, 0);

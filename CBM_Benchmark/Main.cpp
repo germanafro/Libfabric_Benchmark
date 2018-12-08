@@ -43,7 +43,11 @@ main(int argc, char *argv[])
 	int ret = fi_getinfo(FIVER, NULL, NULL, 0, config->hints, &fi); //initial network check
 	if (ret) {
 		printf("initial fi_getinfo: %s\n", fi_strerror(ret));
-		return ret;
+		ret = fi_getinfo(FIVER, NULL, NULL, 0, NULL, &fi);
+		if (ret) {
+			printf("initial fi_getinfo: %s\n", fi_strerror(ret));
+			return ret;
+		}
 	}
 	while (fi->next) {
 		printf("provider: %s %s\n", fi->fabric_attr->prov_name, fi->fabric_attr->name);
