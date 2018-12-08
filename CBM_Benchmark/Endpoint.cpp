@@ -1,6 +1,8 @@
 #include "Endpoint.h"
 #include <omp.h>
-#include <sys/time.h>
+#ifdef __linux__
+	#include <sys/time.h>
+#endif
 using namespace std;
 /*
  *
@@ -145,13 +147,14 @@ int Endpoint::client_thread(struct ctx * ctxx )
     for (int i =0 ; i< arraysize; i++){
         message[i] = i;
     }
-
+#ifdef __linux__
 	struct timespec start, stop;
 	double accum;
 	if (clock_gettime(CLOCK_REALTIME, &start) == -1) {
 		perror("clock gettime");
 		exit(EXIT_FAILURE);
 	}
+#endif
 #pragma omp parallel num_threads(config->threads)
     {
      #pragma omp for
@@ -214,6 +217,7 @@ int Endpoint::client_thread(struct ctx * ctxx )
                 printf("[%d]job done, total data sent: %f bytes, error count: %d\n", thread, data, ecount);
             }
     }
+#ifdef __linux__
 	if (clock_gettime(CLOCK_REALTIME, &stop) == -1) {
 		perror("clock gettime");
 		exit(EXIT_FAILURE);
@@ -223,6 +227,7 @@ int Endpoint::client_thread(struct ctx * ctxx )
 		+ (double)(stop.tv_nsec - start.tv_nsec)
 		/ BILLION;
 	printf("time: %lf\n", accum);
+#endif
     return 0;
 }
 
