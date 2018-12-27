@@ -3,18 +3,30 @@
 class Endpoint
 {
 public:
-	Endpoint(const char * addr, char * port,  uint64_t flags, Config * config);
+	Endpoint(const char * addr, char * port,  uint64_t flags, Config * config, int id);
 	~Endpoint();
 	//func()
-	int init(int thread);
+	int init();
 	int waitComp(fid_cq * cq);
-    int client(int thread);
-    int server(int thread);
+
+    int client();
+    int connectToServer();
+    int setDataBuffer();
+    struct transfer writeToServer();
+    struct transfer readFromServer();
+
+    int server();
+    int listenServer();
+
+
+    //deprecated
     int client_thread(struct ctx * ctx);
     int cq_thread();
 
     int run;
+    int id;
     const char * addr;
+    char * av_addr;
     char * port;
     uint64_t flags;
     Config * config;
@@ -31,6 +43,7 @@ public:
     struct fid_cq *cq;
     struct fid_domain *domain;
     struct fid_mr *mr;
+	struct fid_mr *cmr;
 
     struct fid_ep * ep;
     struct fid_pep * pep;

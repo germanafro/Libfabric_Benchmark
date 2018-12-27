@@ -10,6 +10,7 @@ public:
 	~InputNode();
 
 	int initClient(void * cq_thread(void* arg));
+	
 
 
 	int run;

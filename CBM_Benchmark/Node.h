@@ -11,8 +11,14 @@ public:
 	~Node();
 
 	int init(int mode);
+    int connectToServer();
+	int setDataBuffer();
+	struct transfer writeToServer();
+
+    int listenServer();
 
 	int run;
+    int mode;
     const char * addr;
     char * port;
     uint64_t flags;

@@ -24,6 +24,7 @@ public:
     int num_pn;
     int num_en;
     int num_ep;
+    int slot;
     int threads;
     double total_data_size;
     int max_packet_size;
@@ -41,9 +42,14 @@ private:
 
 };
 
+//custom data structures
 struct keys {
     uint64_t rkey;
     uint64_t addr;
+};
+struct transfer {
+        double data_byte;
+        double time_sec;
 };
 struct ctx {
     omp_lock_t lock;
@@ -73,5 +79,6 @@ enum {
 #define MAX_CTRL_MSG_SIZE 2147483// FIXME
 
 
-#define BILLION  1000000000L
+
 #define MILLION  1000000L
+#define BILLION  1000000000L

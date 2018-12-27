@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS = -Wall -fopenmp 
-DEPS = Config.h Endpoint.h host2ip.h Node.h
-OBJ = Main.o Endpoint.o Config.o host2ip.o Node.o
+DEPS = Config.h Endpoint.h host2ip.h Node.h Clock.h
+OBJ = Main.o Endpoint.o Config.o host2ip.o Node.o Clock.o
 LIBS = -lfabric -lpthread
 
 %.o: %.cpp $(DEPS)
