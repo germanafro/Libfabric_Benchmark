@@ -21,6 +21,24 @@ pthread and openmp libraries are still included in makefile but are probably sav
 simple list of hostnames that act as servers/processing nodes. each line may hold one adress. '//' will tell the parser to ignore this line
 
 current implementation assumes static client/server relationship and requires this file to find servers. Future implementation may run multi purpose nodes from central node. Removing the need for this file. 
+
+### runServers.sh, runClients.sh:
+I recommend starting up servers and clients through slurm scripts. For the above example scripts a number of options need to be provided as these settings will likely vary from system to system:
+
+#path, if Benchmark is not run properly from path it won't find config files.
+
+cd <PATH TO '.../CBM_Benchmark/'>
+
+
+#match servers/clients _num in conf
+
+SERVERS=5 / CLIENTS=5
+
+
+#declare an array variable. the names inside this list need to match the slurm names of the hosts listet in serverlist
+
+declare -a nodes=(pn16 pn17 pn18 pn19 pn21 pn22 pn23 pn28 pn29 pn30 pn31 pn32 pn33 pn34 pn37 pn38)
+
 ### conf:
 this Benchmark comes with various settings. the default settings should support a network of 10000x10000 nodes. [required] indicates that this field will most likely always need to be adjusted according to the network setup:
 
@@ -63,9 +81,14 @@ max_duration=40
 checkpoint_intervall=10
 
 ## run:
-./Benchmark <cn/pn/en> <node_id> 
-  
- Note: Benchmark assumes id format [0:n] port numbers are calculated based on node id.
+command: ./Benchmark <cn/pn/en> <node_id> 
+
+run './Benchmark cn 0' on node with controller_addr.
+
+then run './Benchmark en <0:N>' and './Benchmark pn <0:N>' - see runServers.sh / runClients.sh
+
+
+ Note: Benchmark assumes id format [0:n] port numbers are calculated based on node id. The processing nodes(pn) id must match the order of the serverlist.
  
 ## output:
 results will be printet into file './[Weekday] [Month] [Day]' with format:
