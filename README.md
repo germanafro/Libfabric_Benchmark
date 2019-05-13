@@ -17,12 +17,12 @@ numa library - https://linux.die.net/man/3/numa
 pthread and openmp libraries are still included in makefile but are probably save to remove as they are not used anymore.
 
 ## configure:
-### serverlist:
+### .../conf/serverlist:
 simple list of hostnames that act as servers/processing nodes. each line may hold one adress. '//' will tell the parser to ignore this line
 
 current implementation assumes static client/server relationship and requires this file to find servers. Future implementation may run multi purpose nodes from central node. Removing the need for this file. 
 
-### runServers.sh, runClients.sh:
+### .../runServers.sh, .../runClients.sh:
 I recommend starting up servers and clients through slurm scripts. For the above example scripts a number of options need to be provided as these settings will likely vary from system to system:
 
 #path, if Benchmark is not run properly from path it won't find config files.
@@ -39,7 +39,7 @@ SERVERS=5 / CLIENTS=5
 
 declare -a nodes=(pn16 pn17 pn18 pn19 pn21 pn22 pn23 pn28 pn29 pn30 pn31 pn32 pn33 pn34 pn37 pn38)
 
-### conf:
+### .../conf/conf:
 this Benchmark comes with various settings. the default settings should support a network of 10000x10000 nodes. [required] indicates that this field will most likely always need to be adjusted according to the network setup:
 
 //port settings [required]
