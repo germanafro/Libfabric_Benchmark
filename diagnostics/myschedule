@@ -1,0 +1,64 @@
+STAGE 1
+pn04/U1/P1 pn17/mlx4_0/P1
+pn04/U1/P1 pn18/mlx4_0/P1
+pn04/U1/P1 pn19/mlx4_0/P1
+pn04/U1/P1 pn21/mlx4_0/P1
+pn04/U1/P1 pn22/mlx4_0/P1
+
+pn05/mlx4_0/P1 pn17/mlx4_0/P1
+pn05/mlx4_0/P1 pn18/mlx4_0/P1
+pn05/mlx4_0/P1 pn19/mlx4_0/P1
+pn05/mlx4_0/P1 pn21/mlx4_0/P1
+pn05/mlx4_0/P1 pn22/mlx4_0/P1
+
+pn06/mlx4_0/P1 pn17/mlx4_0/P1
+pn06/mlx4_0/P1 pn18/mlx4_0/P1
+pn06/mlx4_0/P1 pn19/mlx4_0/P1
+pn06/mlx4_0/P1 pn21/mlx4_0/P1
+pn06/mlx4_0/P1 pn22/mlx4_0/P1
+
+pn07/mlx4_0/P1 pn17/mlx4_0/P1
+pn07/mlx4_0/P1 pn18/mlx4_0/P1
+pn07/mlx4_0/P1 pn19/mlx4_0/P1
+pn07/mlx4_0/P1 pn21/mlx4_0/P1
+pn07/mlx4_0/P1 pn22/mlx4_0/P1
+
+pn08/mlx4_0/P1 pn17/mlx4_0/P1
+pn08/mlx4_0/P1 pn18/mlx4_0/P1
+pn08/mlx4_0/P1 pn19/mlx4_0/P1
+pn08/mlx4_0/P1 pn21/mlx4_0/P1
+pn08/mlx4_0/P1 pn22/mlx4_0/P1
+
+STAGE 2
+pn04/U1/P1 pn17/mlx4_0/P1
+
+STAGE 3
+pn04/U1/P1 pn16/mlx4_0/P1
+pn04/U1/P1 pn18/mlx4_0/P1
+pn04/U1/P1 pn19/mlx4_0/P1
+pn04/U1/P1 pn21/mlx4_0/P1
+pn04/U1/P1 pn22/mlx4_0/P1
+
+pn05/mlx4_0/P1 pn16/mlx4_0/P1
+pn05/mlx4_0/P1 pn18/mlx4_0/P1
+pn05/mlx4_0/P1 pn19/mlx4_0/P1
+pn05/mlx4_0/P1 pn21/mlx4_0/P1
+pn05/mlx4_0/P1 pn22/mlx4_0/P1
+
+pn06/mlx4_0/P1 pn16/mlx4_0/P1
+pn06/mlx4_0/P1 pn18/mlx4_0/P1
+pn06/mlx4_0/P1 pn19/mlx4_0/P1
+pn06/mlx4_0/P1 pn21/mlx4_0/P1
+pn06/mlx4_0/P1 pn22/mlx4_0/P1
+
+pn07/mlx4_0/P1 pn16/mlx4_0/P1
+pn07/mlx4_0/P1 pn18/mlx4_0/P1
+pn07/mlx4_0/P1 pn19/mlx4_0/P1
+pn07/mlx4_0/P1 pn21/mlx4_0/P1
+pn07/mlx4_0/P1 pn22/mlx4_0/P1
+
+pn08/mlx4_0/P1 pn16/mlx4_0/P1
+pn08/mlx4_0/P1 pn18/mlx4_0/P1
+pn08/mlx4_0/P1 pn19/mlx4_0/P1
+pn08/mlx4_0/P1 pn21/mlx4_0/P1
+pn08/mlx4_0/P1 pn22/mlx4_0/P1

@@ -1,5 +1,8 @@
 #include "Config.h"
-
+// reading a text file
+#include <iostream>
+#include <fstream>
+using namespace std;
 
 
 const char * Config::console_spacer()
@@ -12,18 +15,21 @@ Config::Config()
 {
     //Default Node configs
 	addr = NULL;
-    port = strdup("6666"); // max len 10
+	controller_addr = NULL;
+	start_port = strdup("10000");
+    port = strdup(start_port); 
+	controller_port = strdup("30000");
+	server_offset = 10000;
     num_pn = 10;
     num_en = 10;
-    num_ep = 10;
+    num_ep = 0;
     slot = 0;
-	threads = 10;
-    total_data_size = 1024*1024*1024; // default 1 GB - - the total amount of traffic generated will be this * num_ep * threads
-    max_packet_size = 1024*1024; // TODO how big can Messages be?
+    max_duration = 60; // 10 seconds
+	checkpoint_intervall = 10;
+    max_packet_size = 1024*1024*1024; // 1GB
 
-	msg_size = 1024*1024; // 1MB the size of each remote write operation per thread
-    buff_size = threads*msg_size; // each thread takes up one msg_size space
-	ctrl_size = 1 * 1024 * 1024; // TODO this can probably be reduced to a few bytes
+	msg_size = 1024*1024; // 1MB
+	ctrl_size = 1024; // 
 
 	//Event queue config
     eq_attr.size = 0;
@@ -53,10 +59,106 @@ Config::Config()
 	//hints->domain_attr->mr_mode = FI_MR_BASIC;
 	hints->caps = FI_MSG | FI_RMA;
 	hints->mode = FI_RX_CQ_DATA | FI_CONTEXT; // | FI_LOCAL_MR;
+
+	readConfig();
 }
 
 
 Config::~Config()
 {
 	fi_freeinfo(hints);
+}
+
+/* 
+* read and parse conf files
+* recognizes "//" as commentary inside conf but !DO NOT USE INLINE COMMENTS!
+*/
+int Config::readConfig () 
+{
+	printf("reading config file\n");
+	string line;
+	ifstream confFile ("./conf/conf");
+	if (confFile.is_open())
+	{
+		vector<string> split = {"", ""}; 
+		while ( getline (confFile,line) )
+		{
+			size_t skip = line.find("//");
+			if (skip != std::string::npos) continue;
+			
+			size_t p = line.find("=");
+			if (p != std::string::npos){
+				split[0] = line.substr(0,p);
+				split[1] = line.substr(p+1);
+				if(split[0].compare("msg_size")==0){
+					printf("msg_size: %d Byte\n", stoi(split[1]));
+					msg_size = stoi(split[1]);
+				}
+				if(split[0].compare("controller_addr")==0){
+					controller_addr = new char[split[1].length()+1];
+					strcpy(controller_addr, split[1].c_str());
+					printf("controller_addr: %s \n", controller_addr);
+				}
+				if(split[0].compare("start_port")==0){
+					start_port = new char[split[1].length()+1];
+					strcpy(start_port, split[1].c_str());
+					printf("start_port: %s \n", start_port);
+				}
+				if(split[0].compare("controller_port")==0){
+					controller_port = new char[split[1].length()+1];
+					strcpy(controller_port, split[1].c_str());
+					printf("controller_port: %s \n", controller_port);
+				}
+				if(split[0].compare("server_offset")==0){
+					server_offset = stoi(split[1]);
+					printf("server_offset: %d \n", server_offset);
+				}
+				if(split[0].compare("max_duration")==0){
+					printf("max_duration: %d \n", stoi(split[1]));
+					max_duration = stoi(split[1]);
+				}
+				if(split[0].compare("checkpoint_intervall")==0){
+					printf("checkpoint_intervall: %d \n", stoi(split[1]));
+					checkpoint_intervall = stoi(split[1]);
+				}
+				if(split[0].compare("num_en")==0){
+					printf("num_en: %d \n", stoi(split[1]));
+					num_en = stoi(split[1]);
+				}
+				if(split[0].compare("num_pn")==0){
+					printf("num_pn: %d \n", stoi(split[1]));
+					num_pn = stoi(split[1]);
+				}
+			}
+		}
+		confFile.close();
+	}
+
+	else cout << "Unable to open conf file" << "\n";
+
+
+	printf("reading serverlist file\n");
+	ifstream serverFile ("./conf/serverlist");
+	if (serverFile.is_open())
+	{
+		vector<string> split = {"", ""}; 
+		while ( getline (serverFile,line) )
+		{
+			size_t skip = line.find("//");
+			if (skip != std::string::npos) continue;
+			
+			addr_v.push_back(line);
+		}
+		printf("found %d addresses\n", addr_v.size());
+#ifdef DEBUG
+		for(int i=0; i<addr_v.size(); i++){
+			cout << addr_v[i] << "\n";
+		}
+#endif //DEBUG
+		serverFile.close();
+	}
+
+	else cout << "Unable to open serverlist file" << "\n";
+
+	return 0;
 }

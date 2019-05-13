@@ -1,0 +1,22 @@
+//port settings
+start_port=10000
+controller_port=30000
+server_offset=10000
+
+//adress of the controller node
+controller_addr=10.1.103.102
+
+//the size of each message. note this is not the MTU(payload) transmitted with each packet
+//msg_size=5242880
+msg_size=4096
+
+//define number of nodes
+//note: currently if num_en > num_pn we crash with signal 11 at 2nd checkpoint iter - not sure when or how i screwed this one up :(
+num_en=5
+num_pn=5
+
+//duration of the benchmark in seconds
+max_duration=36
+
+//time interval between each data snapshot in seconds
+checkpoint_intervall=10

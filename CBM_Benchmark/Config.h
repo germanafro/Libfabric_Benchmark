@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <vector>
+#include <string>
 
 class Config
 {
@@ -18,16 +20,24 @@ public:
 	Config();
 	~Config();
 
-	char * addr;
-	char * port;
+    int readConfig();
+
+	const char * addr;
+    char * controller_addr;
+	char * start_port;
+    char * port;
+    char * controller_port;
+    int server_offset;
+    std::vector<std::string> addr_v;
 
     int num_pn;
     int num_en;
     int num_ep;
     int slot;
     int threads;
-    double total_data_size;
     int max_packet_size;
+    int max_duration;
+    int checkpoint_intervall;
 
 	size_t buff_size;
     size_t ctrl_size;
@@ -43,26 +53,47 @@ private:
 };
 
 //custom data structures
+
 struct keys {
-    uint64_t rkey;
-    uint64_t addr;
+    int id;         // used for the controller to assign id to node
+    uint64_t rkey;  // remote key that grants access to the remote memory region
+    uint64_t addr;  // the remote address descriptor to the remote memory region
 };
-struct transfer {
-        double data_byte;
-        double time_sec;
+/*
+* a transfer time stamp. each client will send an array of these transfers
+* to recollect the dataflow of the entire system when the Benchmark is finished.
+*/
+struct transfer {       
+    int from;           // local id
+    int to;             // target id
+    double delta_sec;   // current elapsed time delta
+    double time_sec;    // total elapsed time
+    long completions;   // number of clompetions counted up to this point per endpoint (index = remote id)
+    long data_byte;     // deprecated
 };
+
+/**/
 struct ctx {
-    omp_lock_t lock;
-    int ready;
-    double total_data_size;
-    int size;
     int id;
+    int mode;
+    int size;
 };
 
 #define BM_OFFSET	0
 enum {
-    BM_SERVER   = BM_OFFSET, /* ServerMode Tag for Node*/
-    BM_CLIENT   = 1, /* ClientMode Tag for Node*/
+    //NODE MODES
+    BM_SERVER       = BM_OFFSET,    // ServerMode Tag for Node
+    BM_CLIENT       = 1,            // ClientMode Tag for Node
+    BM_CONTROLLER   = 2,            // ControllerMode Tag for Node
+
+    //COMMANDS
+    BM_STOP         = 100,          //
+    BM_START        = 101,          //
+    BM_CONNECT      = 102,          //
+    BM_CONNECTED    = 103,          //
+    BM_CHECKPOINT   = 104,          //
+
+    //MAX
     BM_MAX
 };
 
@@ -79,6 +110,7 @@ enum {
 #define MAX_CTRL_MSG_SIZE 2147483// FIXME
 
 
-
+//numbers
 #define MILLION  1000000L
 #define BILLION  1000000000L
+#define GIGABYTE 1024*1024*1024

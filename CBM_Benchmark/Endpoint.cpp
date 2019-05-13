@@ -1,28 +1,75 @@
 #include "Endpoint.h"
 #include "Clock.h"
 #include <omp.h>
+#include <iostream>
 using namespace std;
 /*
  *
  * TODO Docstring
+ * BIG TODO: I have recently been informed that i should not use malloc in c++ and instead use new in combination with shared pointers 
+ * which would result in never running into memory leaks or singal 6/11.
  */
-Endpoint::Endpoint(const char * addr, char * port,  uint64_t flags, Config * config, int id)
+Endpoint::Endpoint(Node * node, const char * addr, char * port,  uint64_t flags, Config * config, int id)
 {
+    this->node = node;
     this->addr = addr;
     this->port = port;
     this->flags = flags;
     this->config = config;
     this->id = id;
-
-    ctx = (struct ctx *)malloc(sizeof(*ctx));
-    if (!ctx) {
+    this->domain = node->domain;
+    this->fabric = node->fabric;
+    tx_ctx = (struct ctx *)malloc(sizeof(struct ctx));
+    if (!tx_ctx) {
         perror("malloc");
     }
-    omp_init_lock(&ctx->lock);
-    ctx->ready = 0;
-    ctx->total_data_size = config->total_data_size;
-    ctx->size = config->max_packet_size;
-    ctx->id = id;
+    c_ctx = (struct ctx *)malloc(sizeof(struct ctx));
+    if (!c_ctx) {
+        perror("malloc");
+    }
+    rx_ctx = (struct ctx *)malloc(sizeof(struct ctx));
+    if (!rx_ctx) {
+        perror("malloc");
+    }
+    tx_ctx->size = 0;
+    tx_ctx->id = id;
+    tx_ctx->mode = node->mode;
+    c_ctx->size = 0;
+    c_ctx->id = id;
+    c_ctx->mode = node->mode;
+    rx_ctx->size = 0;
+    rx_ctx->id = id;
+    rx_ctx->mode = node->mode;
+
+    int ret= fi_getinfo(FIVER, addr, port, 0, config->hints, &fi);
+    if (ret) {
+        perror("EP.fi_getinfo");
+    }
+    msg_buff = (int *) malloc(config->msg_size);
+    if (!msg_buff) {
+        perror("malloc");
+    }
+    ctrl_buff = malloc(config->ctrl_size);
+    if (!ctrl_buff) {
+        perror("malloc");
+    }
+    ret = fi_mr_reg(this->domain, msg_buff, config->msg_size,
+                    FI_REMOTE_READ | FI_REMOTE_WRITE | FI_WRITE | FI_READ,
+                    0, 0, 0, &mr, NULL);
+    if (ret) {
+        printf("[%d]", id);
+        perror("fi_mr_reg mr");
+    }
+	ret = fi_mr_reg(this->domain, ctrl_buff, config->ctrl_size,
+					FI_SEND | FI_RECV | FI_WRITE | FI_READ,
+                    0, 0, 0, &cmr, NULL);
+    if (ret) {
+        printf("[%d]", id);
+        perror("fi_mr_reg cmr");
+    }
+    local_keys.id = id;
+    local_keys.addr = (uint64_t) msg_buff;
+    local_keys.rkey = fi_mr_key(mr);
 }
 
 Endpoint::~Endpoint()
@@ -30,89 +77,59 @@ Endpoint::~Endpoint()
     fi_shutdown(ep, 0);
     fi_close(&ep->fid);
     fi_close(&mr->fid);
-    fi_close(&cq->fid);
-    fi_close(&eq->fid);
-    fi_close(&domain->fid);
-    fi_close(&fabric->fid);
+    fi_close(&cmr->fid);
     fi_freeinfo(fi);
     //free(msg_buff); // TODO is this necessary or will fi_close(mr) free this resource?
-    free(ctrl_buff);
-    omp_destroy_lock(&ctx->lock);
+    //free(ctrl_buff);
 }
 
 int Endpoint::init()
 {
-    int ret;
-    struct fi_eq_attr eq_attr = config->eq_attr;
-    struct fi_cq_attr cq_attr = config->cq_attr;
-    printf("[%d] initializing Endpoint | addr: %s, port: %s\n", id, addr, port);
-    ret= fi_getinfo(FIVER, addr, port, 0, config->hints, &fi);
-    if (ret) {
-        printf("[%d] fi_getinfo: %s\n", id, fi_strerror(ret));
-        return ret;
-    }
-	printf("[%d] fi_getinfo: %s %s\n", id, fi->fabric_attr->prov_name, fi->fabric_attr->name);
-
-    ret = fi_fabric(fi->fabric_attr, &fabric, NULL);
-    if (ret) {
-        printf("[%d] fi_fabric: %s\n", id, fi_strerror(ret));
-        return ret;
-    }
-
-
-    ret = fi_eq_open(fabric, &eq_attr, &eq, NULL);
-    if (ret) {
-        printf("[%d] fi_eq_open: %s\n", id, fi_strerror(ret));
-        return ret;
-    }
-
-    ret = fi_domain(fabric, fi, &domain, NULL);
-    if (ret) {
-        printf("[%d] fi_domain: %s\n", id, fi_strerror(ret));
-        return ret;
-    }
-
-    ret = fi_cq_open(domain, &cq_attr, &cq, NULL);
-    if (ret) {
-        printf("[%d] fi_cq_open: %s\n", id, fi_strerror(ret));
-        return ret;
-    }
-
-    msg_buff = (int *) malloc(config->buff_size);
-    if (!msg_buff) {
-        printf("[%d] error malloc msg\n", id);
-        return ret;
-    }
-    ctrl_buff = malloc(config->ctrl_size);
-    if (!ctrl_buff) {
-        printf("[%d] error malloc ctrl\n", id);
-        return ret;
-    }
-
-    ret = fi_mr_reg(domain, msg_buff, config->buff_size,
-                    FI_REMOTE_READ | FI_REMOTE_WRITE,
-                    0, 0, 0, &mr, NULL);
-    if (ret) {
-        printf("[%d] fi_mr_reg mr: %s\n", id, fi_strerror(ret));
-        return ret;
-    }
-	ret = fi_mr_reg(domain, ctrl_buff, config->ctrl_size,
-					FI_SEND | FI_RECV | FI_WRITE | FI_READ,
-                    0, 0, 0, &cmr, NULL);
-    if (ret) {
-        printf("[%d] fi_mr_reg cmr: %s\n", id, fi_strerror(ret));
-        return ret;
-    }
 	return 0;
 }
 
+/*
+* prepare remote key and address for msg buffer
+* initialize passive endpoint and bind the pep to the event queue of the node
+*/
+int Endpoint::server()
+{
+    int ret;
+    struct fid_eq *eq = node->eq;
 
+    int N = config->msg_size / sizeof(int);
+    for(int i=0; i<N; i++){
+        msg_buff[i] = 0;
+    }
 
+    ret = fi_passive_ep(fabric, fi, &pep, NULL);
+    if (ret) {
+        printf("[%d]", id);
+        perror("fi_passive_ep");
+        return ret;
+    }
 
-//client functionality
+    ret = fi_pep_bind(pep, &eq->fid, 0);
+    if (ret) {
+        printf("[%d]", id);
+        perror("fi_pep_bind(eq)");
+        return ret;
+    }
+
+    return 0;   
+}
+
+/*
+* initialize endpoint with client behavior
+* bind ep to the nodes eq and cq
+* enable ep
+*/
 int Endpoint::client()
 {
     int ret;
+    struct fid_eq *eq = node->eq;
+    struct fid_cq *cq_tx = node->cq_tx; // FI_TRANSMIT
+    struct fid_cq *cq_rx = node->cq_rx; // FI_RECV
 
     ret = fi_endpoint(domain, fi, &ep, NULL);
     if (ret) {
@@ -126,9 +143,15 @@ int Endpoint::client()
         return ret;
     }
 
-    ret = fi_ep_bind(ep, &cq->fid, FI_TRANSMIT | FI_RECV);
+    ret = fi_ep_bind(ep, &cq_tx->fid, FI_TRANSMIT);
     if (ret) {
-        perror("fi_ep_bind(cq)");
+        perror("fi_ep_bind(cq_tx)");
+        return ret;
+    }
+
+    ret = fi_ep_bind(ep, &cq_rx->fid, FI_RECV);
+    if (ret) {
+        perror("fi_ep_bind(cq_rx)");
         return ret;
     }
 
@@ -138,53 +161,6 @@ int Endpoint::client()
         return ret;
     }
 
-    return 0;
-}
-
-int Endpoint::connectToServer()
-{
-
-    size_t ret;
-    ssize_t rret;
-    rret = fi_recv(ep, ctrl_buff, sizeof(keys), fi_mr_desc(cmr), 0, NULL);
-    if (rret) {
-        perror("fi_recv");
-        return (int)rret;
-    }
-
-
-    ret = fi_connect(ep, fi->dest_addr, NULL, 0);
-    if (ret) {
-        perror("fi_connect");
-        return ret;
-    }
-
-    struct fi_eq_cm_entry entry;
-    uint32_t event;
-
-    rret = fi_eq_sread(eq, &event, &entry, sizeof(entry), -1, 0);
-    if (rret > 0){
-        if (event != FI_CONNECTED) {
-            fprintf(stderr, "invalid event %u\n", event);
-            return -1;
-        }
-    }
-    else if (rret != -FI_EAGAIN) {
-        struct fi_eq_err_entry err_entry;
-        fi_eq_readerr(eq, &err_entry, 0);
-        printf("[%d] %s %s \n", id, fi_strerror(err_entry.err), fi_eq_strerror(eq, err_entry.prov_errno, err_entry.err_data, NULL, 0));
-        return ret;
-    }
-
-
-    ret = waitComp(cq);
-    if (ret){
-        return ret;
-    }
-
-    memcpy(&keys, ctrl_buff, sizeof(keys));
-    printf("[%d] connected\n", id);
-    run = 1;
     return 0;
 }
 
@@ -202,250 +178,275 @@ int Endpoint::setDataBuffer()
     return 0;
 }
 
-struct transfer Endpoint::writeToServer()
+ssize_t Endpoint::rdma_write()
 {
-    struct transfer transfer;
-    transfer.data_byte = 0;
-    transfer.time_sec = 0;
-    size_t msg_size = config->msg_size;
     ssize_t ret;
-
-    //time
-    Clock * clock = new Clock();
-    if(clock->start()){
-        exit(EXIT_FAILURE);
-    }
-
-    ret = fi_write(ep, msg_buff, msg_size, fi_mr_desc(mr),
-                    0, keys.addr, keys.rkey, ctx);
+    tx_ctx->size = config->msg_size;
+    ret = fi_write(ep, msg_buff, config->msg_size, fi_mr_desc(mr),
+                    0, remote_keys.addr, remote_keys.rkey, tx_ctx);
     if (ret) {
-        printf("[%d] fi_write: %s\n", id, fi_strerror(ret));
-        if(clock->stop()){ // even if we couldnt send data we have to measure time
-            exit(EXIT_FAILURE);
-        }
-        transfer.time_sec = clock->getDelta();
-        return transfer;
+        perror("fi_write");
+        return ret;
     }
 
-    waitComp(cq);
-
-    //time
-	clock->stop();
-	transfer.time_sec = clock->getDelta();
-    transfer.data_byte = msg_size;
-    return transfer;
+    return ret;
 }
 
-struct transfer Endpoint::readFromServer()
+ssize_t Endpoint::rdma_read()
 {
-    struct transfer transfer;
-    transfer.data_byte = 0;
-    transfer.time_sec = 0;
-    size_t msg_size = config->msg_size;
     ssize_t ret;
-
-    //time
-    Clock * clock = new Clock();
-    if(clock->start()){
-        exit(EXIT_FAILURE);
-    }
-
-    ret = fi_read(ep, msg_buff, msg_size, fi_mr_desc(mr),
-                    0, keys.addr, keys.rkey, ctx);
+    tx_ctx->size = config->msg_size;
+    ret = fi_read(ep, msg_buff, config->msg_size, fi_mr_desc(mr),
+                    0, remote_keys.addr, remote_keys.rkey, tx_ctx);
     if (ret) {
-        printf("[%d] fi_read: %s\n", id, fi_strerror(ret));
-        if(clock->stop()){ // even if we couldnt send data we have to measure time
-            exit(EXIT_FAILURE);
-        }
-        transfer.time_sec = clock->getDelta();
-        return transfer;
+        perror("fi_read");
+        return ret;
     }
 
-    waitComp(cq);
-
-    //time
-	clock->stop();
-	transfer.time_sec = clock->getDelta();
-    transfer.data_byte = msg_size;
-    return transfer;
+    return ret;
 }
 
+/*
+* await a message on the ctrl_buff with given size
+* size <= 0 results in the size of the ctrl_buff
+*/
+int Endpoint::ctrl_recv(size_t size)
+{
+    //printf("[%d]DEBUG: posting ctrl_receive %d\n", id, size);
+    int ret;
+    if(size <= 0){
+        size = config->ctrl_size;
+    }
+    rx_ctx->id = id;
+    rx_ctx->size = size;
+    ret = fi_recv(ep, ctrl_buff, size, fi_mr_desc(cmr), 0, rx_ctx);
+    if (ret) {
+        perror("fi_recv");
+    }
+    return ret;
+}
 
-//server functionality
-int Endpoint::server()
+/*
+* send a control message from the ctrl_buff with given size
+* size <= 0 results in the size of the ctrl_buff
+*/
+int Endpoint::ctrl_send(size_t size)
+{
+    //printf("[%d]DEBUG: posting ctrl_send: %d\n", id, size);
+    int ret;
+    if(size <= 0){
+        size = config->ctrl_size;
+    }
+    c_ctx->size = size;
+    ret = fi_send(ep, ctrl_buff, size, fi_mr_desc(cmr), 0, c_ctx);
+    if (ret) {
+        perror("fi_send");
+    }
+    return ret;
+}
+
+/*
+* copy local keypair into ctrl_buff and send to remote peer
+*/
+int Endpoint::sendKeys()
 {
     int ret;
-    keys.addr = (uint64_t) msg_buff;
-    keys.rkey = fi_mr_key(mr);
+    size_t size = sizeof(struct keys);
+    memcpy(ctrl_buff, &local_keys, size);
+    ret = ctrl_send(size);
 
-#ifdef SOCKETS // get adress (does not work with verbs provider!)
-	struct fi_av_attr av_attr;
-	struct fid_av * av;
-	memset(&av_attr, 0, sizeof(av_attr));
-	av_attr.type = FI_AV_UNSPEC; //fi->domain_attr->av_type;
-	ret = fi_av_open(domain, &av_attr, &av, NULL);
-	if (ret) {
-		printf("[%d]fi_av_open: %s\n", id, fi_strerror(ret));
-		return ret;
-	}
-
-	ret = fi_endpoint(domain, fi, &ep, NULL);
-	if (ret) {
-		printf("[%d]fi_endpoint: %s\n", id, fi_strerror(ret));
-		return ret;
-	}
-
-	ret = fi_ep_bind(ep, &av->fid, 0);
-	if (ret) {
-		printf("[%d]fi_pep_bind(av): %s\n", id, fi_strerror(ret));
-		return ret;
-	}
-
-	ret = fi_enable(ep);
-	if (ret) {
-		printf("[%d]fi_enable: %s\n", id, fi_strerror(ret));
-		return ret;
-	}
-
-	av_addr = (char*)malloc(30);
-	size_t len = 30;
-	fi_av_straddr(av, fi->src_addr, addr, &len);
-	fi_shutdown(ep, 0);
-	fi_close(&ep->fid);
-#endif // SOCKETS
-
-    ret = fi_passive_ep(fabric, fi, &pep, NULL);
-    if (ret) {
-        printf("[%d]fi_passive_ep: %s\n", id, fi_strerror(ret));
-        return ret;
-    }
-
-    ret = fi_pep_bind(pep, &eq->fid, 0);
-    if (ret) {
-        printf("[%d]fi_pep_bind(eq): %s\n", id, fi_strerror(ret));
-        return ret;
-    }
-
-    return 0;   
+    return ret;
 }
 
-int Endpoint::listenServer()
+/*
+* copy command string into ctrl_buff and send to remote peer
+*/
+int Endpoint::sendCommand(int * COMMAND)
+{
+    int ret;
+    size_t size = sizeof(int);
+
+    memcpy(ctrl_buff, COMMAND, size);
+    c_ctx->size = size;
+    ret = ctrl_send(size);
+
+    return ret;
+}
+
+/*
+* listen for incoming conn_req on the pep
+* make sure to have run server(struct fid_eq *eq) at least once before calling this function.
+*/
+int Endpoint::listen()
 {
     int ret;
     ret = fi_listen(pep);
     if (ret) {
-        printf("[%d]fi_listen: %s\n", id, fi_strerror(ret));
+        perror("fi_listen");
+        return ret;
+    }
+	printf("[%d]listening\n", id);
+
+    return ret;
+}
+
+/*
+* post recv for remote key pair
+* request connection 
+* wait for answer, wait for key pair (synchronously)
+* store key pair in keys struct
+*/
+int Endpoint::connect()
+{
+
+    int ret;
+    ssize_t rret;
+    struct fid_eq *eq = node->eq;
+
+    ret = ctrl_recv(sizeof(struct keys));
+    if(ret){
         return ret;
     }
 
+    ret = fi_connect(ep, fi->dest_addr, NULL, 0);
+    if (ret) {
+        perror("fi_connect");
+        return ret;
+    }
+    
     struct fi_eq_cm_entry entry;
     uint32_t event;
-    ssize_t rret;
-	
-    while (1) {
 
-#ifdef SOCKETS
-		printf("[%d]listening: %s\n", id, av_addr);
-#else
-		printf("[%d]listening\n", id);
-#endif // DEBUG
-
-        rret = fi_eq_sread(eq, &event, &entry, sizeof(entry), -1, 0);
-        if (rret > 0) {
-            if (event != FI_CONNREQ) {
-                printf("invalid event %u\n", event);
-                return (int) rret;
-            }
-        } else if (rret != -FI_EAGAIN) {
-            struct fi_eq_err_entry err_entry;
-            fi_eq_readerr(eq, &err_entry, 0);
-            printf("%s %s \n", fi_strerror(err_entry.err),
-                   fi_eq_strerror(eq, err_entry.prov_errno, err_entry.err_data, NULL, 0));
-            return (int) rret;
-        }
-
-        printf("[%d]connection request: %s\n", id, entry.info->fabric_attr->name);
-
-        ret = fi_endpoint(domain, entry.info, &ep, NULL);
-        if (ret) {
-            perror("fi_endpoint");
-            return ret;
-        }
-
-        ret = fi_ep_bind(ep, &eq->fid, 0);
-        if (ret) {
-            perror("fi_ep_bind(eq)");
-            return ret;
-        }
-
-        ret = fi_ep_bind(ep, &cq->fid, FI_TRANSMIT | FI_RECV);
-        if (ret) {
-            perror("fi_ep_bind(cq)");
-            return ret;
-        }
-
-		ret = fi_enable(ep);
-		if (ret) {
-			perror("fi_enable");
-			return ret;
-		}
-        ret = fi_accept(ep, NULL, 0);
-        if (ret) {
-            perror("fi_accept");
-            return ret;
-        }
-
-        rret = fi_eq_sread(eq, &event, &entry, sizeof(entry), -1, 0);
-        if (rret > 0) {
-            if (event != FI_CONNECTED) {
-                fprintf(stderr, "invalid event %u\n", event);
-                return (int) rret;
-            }
-        } else if (rret != -FI_EAGAIN) {
-            struct fi_eq_err_entry err_entry;
-            fi_eq_readerr(eq, &err_entry, 0);
-            printf("%s %s \n", fi_strerror(err_entry.err),
-                    fi_eq_strerror(eq, err_entry.prov_errno, err_entry.err_data, NULL, 0));
-            return (int) rret;
-        }
-
-        //prepare buffers
-        memcpy(ctrl_buff, &keys, sizeof(keys));
-        int N = config->buff_size / sizeof(int);
-        for(int i=0; i<N; i++){
-            msg_buff[i] = 0;
-        }
-
-        rret = fi_send(ep, ctrl_buff, sizeof(keys), fi_mr_desc(cmr), 0, NULL);
-        if (rret) {
-            printf("fi_send: %s\n", fi_strerror((int) rret));
-            return (int) rret;
-        }
-
-        ret = waitComp(cq);
-        if (ret){
-            return ret;
-        }
-
-        printf("[%d]connected\n", id);
-
-        rret = fi_eq_sread(eq, &event, &entry, sizeof(entry), -1, 0);
-        if (rret != sizeof(entry)) {
-            perror("fi_eq_sread");
-            return (int) rret;
-        }
-
-        if (event != FI_SHUTDOWN) {
+    rret = fi_eq_sread(eq, &event, &entry, sizeof(entry), -1, 0);
+    if (rret > 0){
+        if (event != FI_CONNECTED) {
             fprintf(stderr, "invalid event %u\n", event);
-            return (int) rret;
+            return -1;
         }
-        printf("[%d] batch received:\n", id);
-        printf("%d\n.\n.\n.\n%d\n", msg_buff[0], msg_buff[(config->msg_size)/4-1]);
+    }
+    else if (rret != -FI_EAGAIN) {
+        struct fi_eq_err_entry err_entry;
+        fi_eq_readerr(eq, &err_entry, 0);
+        printf("[%d] %s %s \n", id, fi_strerror(err_entry.err), fi_eq_strerror(eq, err_entry.prov_errno, err_entry.err_data, NULL, 0));
+        return -1;
     }
 
-    fi_close(&ep->fid);
-    return 0;
+    struct fi_cq_msg_entry * msg_entry = (struct fi_cq_msg_entry *)malloc(sizeof(struct fi_cq_msg_entry));
+    
+    ret = node->waitComp(node->cq_rx, msg_entry);
+    //printf("DEBUG recv_comp %d\n", msg_entry->len);
+    if (ret){
+        free(msg_entry);
+        return ret;
+    }
+    struct ctx * ctx = (struct ctx *)msg_entry->op_context;//(struct ctx *)malloc(sizeof(struct ctx)); //FIXME
+    //memcpy(ctx, entry.op_context, sizeof(struct ctx));
+    if(ctx->size == msg_entry->len){
+        memcpy(&remote_keys, ctrl_buff, msg_entry->len);
+        printf("[%d] connected\n", id);
+        run = 1;
+        free(ctx);
+        free(msg_entry);
+        return 0;
+    } else{
+        printf("Error: whoops expected to receive something of size keys: %d but received size: %d\n", ctx->size, msg_entry->len);
+        printf("ctx: id %d size %d mode %d \n", ctx->id, ctx->size, ctx->mode);
+        free(ctx);
+        free(msg_entry);
+        return -1;
+    }
 }
+
+/*
+* create a new endpoint bind them to the nodes cq based on the information of the cm entry 
+* accept the conn_req
+* obviously this needs to be run after a validated conn_req event
+*/
+int Endpoint::accept(struct fi_eq_cm_entry * entry)
+{
+    int ret;
+    struct fid_eq *eq = node->eq;
+    struct fid_cq *cq_tx = node->cq_tx; // FI_TRANSMIT
+    struct fid_cq *cq_rx = node->cq_rx; // FI_RECV
+    
+    ret = fi_endpoint(domain, entry->info, &ep, NULL);
+    if (ret) {
+        perror("fi_endpoint");
+        return ret;
+    }
+
+    ret = fi_ep_bind(ep, &eq->fid, 0);
+    if (ret) {
+        perror("fi_ep_bind(eq)");
+        return ret;
+    }
+
+    ret = fi_ep_bind(ep, &cq_tx->fid, FI_TRANSMIT);
+    if (ret) {
+        perror("fi_ep_bind(cq_tx)");
+        return ret;
+    }
+
+    ret = fi_ep_bind(ep, &cq_rx->fid, FI_RECV);
+    if (ret) {
+        perror("fi_ep_bind(cq_rx)");
+        return ret;
+    }
+
+    ret = fi_enable(ep);
+    if (ret) {
+        perror("fi_enable");
+        return ret;
+    }
+    ret = fi_accept(ep, NULL, 0);
+    if (ret) {
+        perror("fi_accept");
+        return ret;
+    }
+
+    return ret;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 int Endpoint::waitComp(struct fid_cq * cq)
 {
@@ -509,7 +510,7 @@ int Endpoint::waitComp(struct fid_cq * cq)
 
 
 
-// deprecated
+/* deprecated
 
 int Endpoint::cq_thread()
 {
@@ -543,8 +544,8 @@ int Endpoint::client_thread(struct ctx * ctx )
 {
     size_t msg_size = config->msg_size;
 #ifdef DEBUG
-	size_t buff_size = config->buff_size;
-	printf("msg_size: %d, buff_size: %d, need size: %d\n", msg_size, buff_size, msg_size*config->threads);
+	size_t msg_size = config->msg_size;
+	printf("msg_size: %d, msg_size: %d, need size: %d\n", msg_size, msg_size, msg_size*config->threads);
 #endif // DEBUG
     int arraysize = msg_size / sizeof(int);
     int * message = (int *)malloc(msg_size);
@@ -559,8 +560,8 @@ int Endpoint::client_thread(struct ctx * ctx )
     memcpy(msg_buff + offset, &message[0], msg_size);
 
     int ecount = 0;
-    double data = 0;
-    printf("[%d]job start, target: %f bytes\n", id, ctx->total_data_size);
+    long data = 0;
+    printf("[%d]job start, target: %l bytes\n", id, ctx->total_data_size);
 
     //time
     Clock * clock = new Clock();
@@ -569,26 +570,6 @@ int Endpoint::client_thread(struct ctx * ctx )
     }
     
     while (data < ctx->total_data_size) {
-
-        /*ret = fi_read(ep, msg_buff + msg_size * ctx->id, msg_size, fi_mr_desc(mr),
-                        0, keys.addr + msg_size * ctx->id, keys.rkey, ctx);
-        if (ret) {
-            printf("[%d] fi_read: %s\n", thread, fi_strerror(ret));
-        }
-
-        while (!ctx->ready) {
-            //wait
-        }
-        omp_set_lock(&ctx->lock);
-        ctx->ready = 0;
-        omp_unset_lock(&ctx->lock);
-
-        int temp;
-        memcpy(&temp, msg_buff + msg_size * ctx->id, msg_size);
-        //printf("thread[%d] iter %d: fi_read: %d\n", ctx->id, j, temp);
-        temp++;
-        //printf("thread[%d] iter %d: fi_write: %d\n", ctx->id, j, temp);
-        memcpy(msg_buff + msg_size * ctx->id, &temp, msg_size);*/
 
         ret = fi_write(ep, msg_buff + offset, msg_size, fi_mr_desc(mr),
                         0, keys.addr + offset, keys.rkey, ctx);
@@ -605,7 +586,7 @@ int Endpoint::client_thread(struct ctx * ctx )
 
 
 #ifdef DEBUG
-        printf("[%d] fi_write: wrote %f bytes in total \n", thread, data);
+        printf("[%d] fi_write: wrote %l bytes in total \n", thread, data);
 #endif // DEBUG
         omp_set_lock(&ctx->lock);
         ctx->ready = 0;
@@ -619,3 +600,4 @@ int Endpoint::client_thread(struct ctx * ctx )
 	printf("time: %lf\n", clock->getDelta());
     return 0;
 }
+*/

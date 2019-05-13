@@ -2,21 +2,38 @@
 #include "host2ip.h"
 #include "Node.h"
 #include "Clock.h"
+#include <chrono>
+#include <ctime>
 
+#include <numa.h>
+#include <iostream>
+#include <fstream>
 using namespace std;
 
 
+Clock * timer = new Clock(); //deprecated
 
 Config * config;
+Node * cnode;
 Node * pnode;
 Node * inode;
 
-int server()
+int server(int id)
 {
-	pnode = new Node(NULL, FI_SOURCE, config);
+	pnode = new Node(id, FI_SOURCE, config);
 	int ret = pnode->init(BM_SERVER);
 	if (ret)
 		return ret;
+    
+    /*
+    * post listen for clients
+    * connect to the controller
+    * wait for connreq
+    * accept connreq and send out keys
+    * recv "stop" signal
+    * stay alive
+    * wait for "stop"
+    */
     ret = pnode->listenServer();
 	if (ret)
 		return ret;
@@ -25,64 +42,210 @@ int server()
 	return 0;
 }
 
-int client(char *addr) 
+int controller(int idn)
 {
-    /* number of iterations until all data is sent
-    NOTE: total_data_size is the data target  per Endpoint so actual data sent 
-    will be total_data_size * num_ep */
+    // output data
+    size_t msg_size = config->msg_size;
+    int n = config->num_en;
+    int m = config->num_pn;
 
-    int N = (int)(config->total_data_size / config->msg_size);
-    struct transfer * transfer = (struct transfer *)calloc(N,sizeof(*transfer));
-    double data_sum = 0;
-    double time_sum = 0;
+    // create date timestamp
+    /* note: for some reason Clock.h implementation gave signal 11 50% of the time. Stackoverflow yelled at me for using c headers. 
+     * Otherwise no constructive feedback - so I began using this instead
+     */
+    auto now = std::chrono::system_clock::now();
+    std::time_t end_time = std::chrono::system_clock::to_time_t(now);
+    char * full_date = strdup(std::ctime(&end_time));
+    char date[10];
+    strncpy(date, strdup(full_date), 10);
 
-    //TODO pass params to config
-	inode = new Node(addr, 0, config);
-	int ret = inode->init(BM_CLIENT);
-	if (ret) return ret;
+    config->num_ep = config->num_pn + config->num_en; // total number of ep of course needs to equal client and server num
+	cnode = new Node(idn, FI_SOURCE, config);
+	int ret = cnode->init(BM_CONTROLLER);
+	if (ret)
+		return ret;
+
+    /*
+    *check event queue
+    *accept connreq
+    *wait till counter >= num_ep
+    *if connected: counter++
+    */
+    ret = cnode->listenController();
+	if (ret)
+		return ret;
+
+    /*
+    * tell clients to connect to servers
+    */
+    ret = cnode->controllerConnect();
+    if(ret)
+        return ret;
+
+    /*
+    * send start signal to all hosts
+    */
+    ret = cnode->controllerStart();
+	if (ret)
+		return ret;
+
     
-    ret = inode->connectToServer();
-    if (ret) return ret;
-    ret = inode->setDataBuffer();
-    if (ret) return ret;
+    
+    int from = -1;
+    int to = -1;
+    double delta_sec = 0.0;
+    double time_sec = 0.0;
+    long completions = 0;
+    long byte = 0;
+    double gigabit = 0.0;
+    double throughput = 0.0;
 
-    /* write will run multiple fi_write on different fi_ep for each processing node the ep is connected to.
-    We don't want to lock up finished eps because of one ep who hasnt finished it's transfer
-    so we will allow multiple write batches.
+    int check = config->checkpoint_intervall;
 
-    TODO: however we could test the difference in bandwidth if we wait for every ep to finish 
-    before starting the next batch. 
-    The difference measured will give us an estimate of fairness in bandwidth distribution*/
-    Clock * clock = new Clock();
-    clock->start();
-//#pragma omp parallel num_threads(2)
-{
-    //#pragma omp for
-    for(int i = 0; i < N; i++){
-        transfer[i] = inode->writeToServer();
-        printf("transer[%d] data_byte: %fl, time_sec: %fl \n", i, transfer[i].data_byte, transfer[i].time_sec);
+    /*
+    * start timer
+    * wait till time t is reached
+    */
+    auto start = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds;
+    
+    while (elapsed_seconds.count() < config->max_duration)
+    {
+        auto end = std::chrono::system_clock::now();
+        elapsed_seconds = end-start;
+        if((int)elapsed_seconds.count() >= check){
+            printf("%d , %d\n", check, config->max_duration);
+            ret = cnode->controllerCheckpoint();
+            if (ret) return ret;
+
+            while(1){
+                ofstream myfile (date, ios::out | ios::app);
+                if (myfile.is_open())
+                {
+                    //calculate bandwidth
+                    for(int i=0; i<n;i++){
+                        for(int j=0; j<m;j++){
+                            from = cnode->checkpoint[i*m+j].from;
+                            to = cnode->checkpoint[i*m+j].to;
+                            time_sec = cnode->checkpoint[i*m+j].time_sec;
+                            delta_sec = cnode->checkpoint[i*m+j].delta_sec;
+                            completions = cnode->checkpoint[i*m+j].completions;
+                            byte = completions*config->msg_size;
+                            gigabit = (double)byte*8/(1000000000);
+                            throughput = gigabit / delta_sec;
+                            myfile << from << " " << to << " " << n << " " << m << " " << delta_sec << " " << time_sec << " " << completions << " " << msg_size << " " << byte << " " << gigabit << " " << throughput << "\n";
+                            std::cout << from << " " << to << " " << n << " " << m << " " << delta_sec << " " << time_sec << " " << completions << " " << msg_size << " " << byte << " " << gigabit << " " << throughput << "\n";
+                        }
+                    }
+                    myfile.close();
+                    break;
+                }
+            }
+
+            check += config->checkpoint_intervall;
+        }
     }
-}
-    clock->stop();
 
-    for(int i = 0; i < N; i++){
-        data_sum += transfer[i].data_byte;
-        time_sum += transfer[i].time_sec;
+    /*
+    * post receive for timers and data from clients 
+    * send stop signal to all hosts
+    */
+    ret = cnode->controllerStop();
+	if (ret)
+		return ret;
+
+
+    //create output
+    while(1){
+        ofstream myfile (date, ios::out | ios::app);
+        if (myfile.is_open())
+        {
+            //calculate bandwidth
+            for(int i=0; i<n;i++){
+                for(int j=0; j<m;j++){
+                    from = cnode->summary[i*m+j].from;
+                    to = cnode->summary[i*m+j].to;
+                    time_sec = cnode->summary[i*m+j].time_sec;
+                    delta_sec = cnode->summary[i*m+j].delta_sec;
+                    completions = cnode->summary[i*m+j].completions;
+                    byte = completions*config->msg_size;
+                    gigabit = (double)byte*8/(1000000000);
+                    throughput = gigabit / delta_sec;
+                    myfile << from << " " << to << " " << n << " " << m << " " << delta_sec << " " << time_sec << " " << completions << " " << msg_size << " " << byte << " " << gigabit << " " << throughput << "\n";
+                    std::cout << from << " " << to << " " << n << " " << m << " " << delta_sec << " " << time_sec << " " << completions << " " << msg_size << " " << byte << " " << gigabit << " " << throughput << "\n";
+                }
+            }
+            myfile.close();
+            break;
+        }
     }
-    printf("summary: data_byte %fl, time_sec %fl, time_sum %fl", data_sum, clock->getDelta(), time_sum);
 	return 0;
 }
 
+/*
+* 1 fill data buffers 
+* 2 connect to controller
+* 3 recv and await "connect" command
+* 4 connect to servers
+* 5 send "connected" confirm
+* 6 recv and await "start" command
+* 7 recv "stop"
+* 8 loop: (poll the cq_rx/cq_tx  and decide -> send data / compute a transfer / stop)
+* 9 finalize data and send to controller
+**/
+int client(int id) 
+{
+    //TODO pass params to config
+	inode = new Node(id, 0, config);
+	int ret = inode->init(BM_CLIENT);
+	if (ret) return ret;
+    
+    // 1
+    ret = inode->setDataBuffers();
+    if (ret) return ret;
 
+    // 2 & 3
+    ret = inode->connectToController();
+    if (ret) return ret;
+
+    // 4 & 5 & 6
+    ret = inode->connectToServers();
+    if (ret) return ret;
+
+    // 7 & 8
+    ret = inode->benchmark();
+    if (ret) return ret;
+    
+    // 9
+    //TODO
+    return 0;
+    
+}
+
+/*
+* run with ./Benchmark <Nodetype> <id>
+*/
 int main(int argc, char *argv[])
 {
+    int ret;
+    //note: this app needs to run on the same socket, the HCA is connected to. Otherwise cpu clock speed may drop and performance with it.
+    //TODO: add startup param or config entry or both
+    ret = numa_run_on_node(0);
+    if(ret){
+        perror("numa_run_on_node(0)");
+    }
 	config = new Config();
+    if (config->ctrl_size < sizeof(struct transfer)*config->num_pn){
+        printf("Warning: control buffer size %d is smaller than required size %d", config->ctrl_size, sizeof(struct transfer)*config->num_pn);
+    }
 	struct fi_info * fi;
-	int ret = fi_getinfo(FIVER, NULL, NULL, 0, config->hints, &fi); //initial network check
+	ret = fi_getinfo(FIVER, NULL, NULL, 0, config->hints, &fi); //initial network check
 	if (ret) {
+        perror("fi_getinfo");
 		printf("initial fi_getinfo: %s\n", fi_strerror(ret));
 		ret = fi_getinfo(FIVER, NULL, NULL, 0, NULL, &fi);
 		if (ret) {
+            perror("fi_getinfo");
 			printf("initial fi_getinfo: %s\n", fi_strerror(ret));
 			return ret;
 		}
@@ -92,102 +255,33 @@ int main(int argc, char *argv[])
 		fi = fi->next;
 	}
 	switch (argc) {
-	case 1: // runs server with default config
+	case 3: 
     {
-        return server();
+        printf("[DEBUG] %s %s \n", argv[1], argv[2]);
+        char* mode = argv[1];
+        if(strcmp("en", mode)==0){
+            printf("Entry Node\n");
+            int id = atoi(argv[2]);
+            int int_port = atoi(config->start_port);
+            #pragma warning(suppress : 4996)
+            sprintf(config->port,"%d", id+int_port); // FIXME: find better method
+            return client(id);
+        }
+        if(strcmp("pn", mode)==0){
+            printf("Processing Node\n");
+            int id = atoi(argv[2]);
+            return server(id);
+        }
+        if(strcmp("cn", mode)==0){
+            printf("Central Node\n");
+            int id = atoi(argv[2]);
+            return controller(id);
+        }
     }
-	case 3: // runs server
-    {
-        int num_ep = atoi(argv[1]);
-        if (num_ep > 0) {
-            config->num_ep = num_ep;
-        }
-        printf("Endpoints: %d\n", config->num_ep);
-
-        int msg_size = atoi(argv[2]);
-        if (msg_size > 0) {
-            config->msg_size = msg_size * 1024 * 1024;
-            config->buff_size = config->threads*config->msg_size;
-        }
-        printf("msg_size: %d\n", config->msg_size);
-
-
-        return server();
-    }
-	case 5: // runs client
-    {
-        int threads = atoi(argv[1]);
-        if (threads > 0) {
-            config->threads = threads;
-        }
-        printf("threads: %d\n", threads);
-
-        int num_ep = atoi(argv[2]);
-        if (num_ep > 0) {
-            config->num_ep = num_ep;
-        }
-        printf("Endpoints: %d\n", config->num_ep);
-
-        double total_data_size = atof(argv[3]);
-        if (total_data_size > 0) {
-            config->total_data_size = total_data_size * 1024 * 1024;
-        }
-        printf("total_data_size: %f\n", config->total_data_size);
-
-        char *addr = argv[argc-1];
-        addr = host2ip::resolve(addr);
-        if (addr == NULL) {
-            return -1;
-        } else {
-            config->addr = addr;
-        }
-        printf("addr: %s\n", config->addr);
-
-        return client(addr);
-
-    }
-        case 6: // runs client
-        {
-            
-            int num_ep = atoi(argv[1]);
-            if (num_ep > 0) {
-                config->num_ep = num_ep;
-            }
-            printf("Endpoints: %d\n", config->num_ep);
-
-            double total_data_size = atoi(argv[2]);
-            if (total_data_size > 0) {
-                config->total_data_size = total_data_size * 1024 * 1024;
-            }
-            printf("total_data_size: %f\n", config->total_data_size);
-
-            int msg_size = atoi(argv[3]);
-            if (msg_size > 0) {
-                config->msg_size = msg_size * 1024 * 1024;
-                config->buff_size = config->msg_size; // each thread takes up one msg_size space
-            }
-            printf("msg_size: %d\n", config->msg_size);
-
-            char *addr = argv[argc-2];
-            addr = host2ip::resolve(addr);
-            if (addr == NULL) {
-                return -1;
-            } else {
-                config->addr = addr;
-            }
-            printf("addr: %s\n", config->addr);
-
-            char *port = argv[argc-1];
-            config->port = port;
-            printf("slot: %s\n", port);
-
-            return client(addr);
-
-        }
 	default:
     {
         fprintf(stderr, "wrong number of arguments given: %d\n", argc);
-        fprintf(stderr, "usage:\n[server auto conf] %s\n[server manual conf] %s num_ep msg_size\n[client] %s num_ep total_data_Size(MB) msg_size(MB) serverip port\n", argv[0]);
+        fprintf(stderr, "usage:\n[Processing Node] %s pn <id>(int)\n[Entry Node] %s en <id>(int)\n[Central Node] %s cn 0\n", argv[0], argv[0], argv[0]);
         return -1;
     }
 	}

@@ -1,0 +1,7 @@
+numactl -N 0 stress-ng --cpu 1 // stress 1 cpu on socket 0 
+
+
+ibnetdiscover |less  // display network topology
+
+
+ib_read_bw -a (adress) // node to node bandwidth test
